@@ -9,7 +9,11 @@ public class GoStraightTillHit extends Task {
 
     @Override
     public void tick() {
-        if (robot.senseFront() < 15.5) {
+        double front = robot.senseFront();
+        if (4.5 < front % 10 && front % 10 < 5.5) {
+            robot.triggerEvent(2);
+        }
+        if (front < 5.5) {
             robot.finishTask(RobotEvent.OBSTACLE_IN_FRONT);
             return;
         }

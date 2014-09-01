@@ -85,13 +85,17 @@ public class Robot {
                 e.printStackTrace();
             }
         } else {
-            RobotEvent robotEvent = new RobotEvent(type);
-            for (RobotEventHandler eventHandler : eventHandlers) {
-                try {
-                    eventHandler.onRobotEvent(robotEvent);
-                } catch (RobotException e) {
-                    e.printStackTrace();
-                }
+            triggerEvent(type);
+        }
+    }
+
+    protected void triggerEvent(int type) {
+        RobotEvent robotEvent = new RobotEvent(type);
+        for (RobotEventHandler eventHandler : eventHandlers) {
+            try {
+                eventHandler.onRobotEvent(robotEvent);
+            } catch (RobotException e) {
+                e.printStackTrace();
             }
         }
     }
@@ -113,15 +117,15 @@ public class Robot {
                                        y + 10 * Math.cos(2 * d * Math.PI), d);
         double point3 = senseFromPoint(x - 10 * Math.sin(2 * d * Math.PI),
                                        y - 10 * Math.cos(2 * d * Math.PI), d);
-        return Math.min(Math.min(point1, point2), point3);
+        return Math.min(Math.min(point1, point2), point3) - 10;
     }
 
     public double senseLeft() {
-        return senseFromPoint(x, y, d - 0.25);
+        return senseFromPoint(x, y, d - 0.25) - 10;
     }
 
     public double senseRight() {
-        return senseFromPoint(x, y, d + 0.25);
+        return senseFromPoint(x, y, d + 0.25) - 10;
     }
 
     private List<RobotEventHandler> eventHandlers = new ArrayList<RobotEventHandler>();

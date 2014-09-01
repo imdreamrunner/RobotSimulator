@@ -12,6 +12,7 @@ public class RobotControl {
         this.robotEventHandler = new RobotEventHandler() {
             @Override
             public void onRobotEvent(RobotEvent event) throws RobotException {
+                System.out.println("Event: " + event.message[event.getType()]);
                 if (event.getType() == RobotEvent.TASK_FINISH) {
                     robot.doTask(new GoStraightTillHit());
                 } else if (event.getType() == RobotEvent.OBSTACLE_IN_FRONT) {
