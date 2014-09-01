@@ -76,6 +76,11 @@ public class Robot {
         taskList.clear();
     }
 
+    public void interruptTask() {
+        clearSchedule();
+        finishTask(0);
+    }
+
     protected void finishTask(int type) {
         this.task = null;
         if (taskList.size() > 0) {
