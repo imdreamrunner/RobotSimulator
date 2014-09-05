@@ -34,12 +34,12 @@ public class RobotControl {
             public void onRobotEvent(RobotEvent event) throws RobotException {
                 if (event.getType() == RobotEvent.TASK_FINISH) {
                     if (robot.senseFront() < 10) {
-                        direction += 1;
-                        direction %= 4;
+                        // direction += 1;
+                        // direction %= 4;
                         robot.scheduleTask(new Rotate(0.25));
                     } else {
-                        walk();
-                        markThreeGridInFrontFree();
+                        // walk();
+                        // markThreeGridInFrontFree();
                         robot.doTask(new GoStraight(10));
                     }
                 }
