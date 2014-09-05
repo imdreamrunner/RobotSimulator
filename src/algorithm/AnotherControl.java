@@ -1,3 +1,7 @@
+/*
+ * Xinzi
+ */
+
 package algorithm;
 
 import simulator.*;

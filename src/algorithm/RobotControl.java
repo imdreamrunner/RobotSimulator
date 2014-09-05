@@ -1,3 +1,7 @@
+/*
+ * Yen
+ */
+
 package algorithm;
 
 import simulator.*;
