@@ -12,12 +12,13 @@ import java.util.Scanner;
 public class Arena {
     protected AnchorPane root;
     private boolean[][] map;
+    private int[][] marked;
     private Group obstacles;
     private Group observedObstacles;
     private Rectangle board, green, start, goal;
 
-    private static Color lightGreen = Color.web("#55FF55", 0.7);
-    private static Color lightRed = Color.web("#FF5555", 0.7);
+    private static Color lightGreen = Color.web("#55FF55", 0.5);
+    private static Color lightRed = Color.web("#FF5555", 0.5);
 
     public Arena(AnchorPane root) {
         this.root = root;
@@ -34,6 +35,7 @@ public class Arena {
         goal.setY(600);
 
         map = new boolean[Main.HEIGHT][Main.WIDTH];
+        marked = new int[Main.HEIGHT][Main.WIDTH];
 
         obstacles = new Group();
         observedObstacles = new Group();
@@ -57,6 +59,25 @@ public class Arena {
             System.out.println(ex.getMessage());
             ex.printStackTrace();
         }
+    }
+
+    void tick() {
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                observedObstacles.getChildren().clear();
+                for (int i = 0; i < Main.HEIGHT; i++) {
+                    for (int j = 0; j < Main.WIDTH; j++) {
+                        if (marked[i][j] == 1) {
+                            Rectangle obstacle = new Rectangle(50, 50, lightGreen);
+                            obstacle.setX(50.0 * j);
+                            obstacle.setY(50.0 * i);
+                            observedObstacles.getChildren().add(obstacle);
+                        }
+                    }
+                }
+            }
+        });
     }
 
     protected boolean hasObstacle(int x, int y) {
@@ -104,19 +125,11 @@ public class Arena {
         root.getChildren().remove(goal);
         root.getChildren().remove(obstacles);
         root.getChildren().remove(observedObstacles);
-        obstacles.getChildren().removeAll();
-        observedObstacles.getChildren().removeAll();
+        obstacles.getChildren().clear();
+        observedObstacles.getChildren().clear();
     }
 
     public void markObserved(int x, int y, boolean hasObstacle) {
-        final Rectangle obstacle = new Rectangle(50, 50, lightGreen);
-        obstacle.setX(50.0 * x);
-        obstacle.setY(50.0 * y);
-        Platform.runLater(new Runnable() {
-            @Override
-            public void run() {
-                observedObstacles.getChildren().add(obstacle);
-            }
-        });
+        marked[y][x] = hasObstacle ? 2 : 1; // free 1, not free 2.
     }
 }

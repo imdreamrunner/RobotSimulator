@@ -44,6 +44,7 @@ public class RobotControl {
         robot.addEventHandler(robotEventHandler);
 
         walk();
+        markThreeGridInFrontFree();
         robot.doTask(new GoStraight(10));
 
         /* Example of robot event and sensor.
@@ -93,18 +94,24 @@ public class RobotControl {
     }
 
     private void markThreeGridInFrontFree() {
+        int x = robotX;
+        int y = robotY;
         switch (direction) {
             case 0:
+                x += 2;
             case 2:
-                arena.markObserved(robotX, robotY, false);
-                arena.markObserved(robotX, robotY+1, false);
-                arena.markObserved(robotX, robotY-1, false);
+                x --;
+                arena.markObserved(x, y, false);
+                arena.markObserved(x, y+1, false);
+                arena.markObserved(x, y-1, false);
                 break;
             case 1:
+                y += 2;
             case 3:
-                arena.markObserved(robotX, robotY, false);
-                arena.markObserved(robotX-1, robotY, false);
-                arena.markObserved(robotX+1, robotY, false);
+                y --;
+                arena.markObserved(x, y, false);
+                arena.markObserved(x-1, y, false);
+                arena.markObserved(x+1, y, false);
                 break;
         }
     }

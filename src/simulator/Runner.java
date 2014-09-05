@@ -20,6 +20,7 @@ public class Runner {
             @Override
             public void run() {
                 robot.tick();
+                arena.tick();
             }
         };
         timer = new Timer();
