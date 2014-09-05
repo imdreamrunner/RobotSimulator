@@ -12,7 +12,11 @@ public class Arena {
     protected AnchorPane root;
     private boolean[][] map;
     private Group obstacles;
+    private Group observedObstacles;
     private Rectangle board, green, start, goal;
+
+    private static Color lightGreen = Color.web("#55FF55", 0.7);
+    private static Color lightRed = Color.web("#FF5555", 0.7);
 
     public Arena(AnchorPane root) {
         this.root = root;
@@ -31,6 +35,7 @@ public class Arena {
         map = new boolean[Main.HEIGHT][Main.WIDTH];
 
         obstacles = new Group();
+        observedObstacles = new Group();
 
         try {
             Scanner scanner = new Scanner(new File("arena.txt"));
@@ -74,6 +79,7 @@ public class Arena {
     public void show() {
         root.getChildren().add(board);
         root.getChildren().add(obstacles);
+        root.getChildren().add(observedObstacles);
         root.getChildren().add(green);
         root.getChildren().add(start);
         root.getChildren().add(goal);
@@ -96,6 +102,14 @@ public class Arena {
         root.getChildren().remove(start);
         root.getChildren().remove(goal);
         root.getChildren().remove(obstacles);
+        root.getChildren().remove(observedObstacles);
         obstacles.getChildren().removeAll();
+    }
+
+    public void markObserved(int x, int y, boolean hasObstacle) {
+        Rectangle obstacle = new Rectangle(50, 50, lightGreen);
+        obstacle.setX(50.0 * x);
+        obstacle.setY(50.0 * y);
+        observedObstacles.getChildren().add(obstacle);
     }
 }

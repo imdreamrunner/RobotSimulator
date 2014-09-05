@@ -11,6 +11,6 @@ public class MainControl {
     public MainControl(Arena arena, Robot robot) throws RobotException {
         this.arena = arena;
         this.robot = robot;
-        new RobotControl(robot);
+        new RobotControl(arena, robot);
     }
 }
