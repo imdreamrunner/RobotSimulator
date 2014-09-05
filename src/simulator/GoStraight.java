@@ -23,7 +23,7 @@ public class GoStraight extends Task {
     public void tick() {
         double front = robot.senseFront();
         if (4.5 < front % 10 && front % 10 < 5.5) {
-            robot.triggerEvent(2);
+            robot.triggerEvent(RobotEvent.ROBOT_IN_GRID);
         }
         passDistance += 1;
         if (passDistance > distance) {

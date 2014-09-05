@@ -1,5 +1,6 @@
 package simulator;
 
+import javafx.application.Platform;
 import javafx.scene.Group;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
@@ -104,12 +105,18 @@ public class Arena {
         root.getChildren().remove(obstacles);
         root.getChildren().remove(observedObstacles);
         obstacles.getChildren().removeAll();
+        observedObstacles.getChildren().removeAll();
     }
 
     public void markObserved(int x, int y, boolean hasObstacle) {
-        Rectangle obstacle = new Rectangle(50, 50, lightGreen);
+        final Rectangle obstacle = new Rectangle(50, 50, lightGreen);
         obstacle.setX(50.0 * x);
         obstacle.setY(50.0 * y);
-        observedObstacles.getChildren().add(obstacle);
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                observedObstacles.getChildren().add(obstacle);
+            }
+        });
     }
 }
