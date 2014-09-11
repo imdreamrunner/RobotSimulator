@@ -11,7 +11,7 @@ public class AnotherControl {
     Arena arena;
     RobotEventHandler robotEventHandler;
     int[][] theWorldIKnow; // 0 unknown, 1 free, 2 obstacle.
-    int robotX, robotY, direction;
+    int robotX, robotY, robotD;
 
     public AnotherControl(final Arena arena, final Robot robot) throws RobotException {
         this.arena = arena;
@@ -25,7 +25,7 @@ public class AnotherControl {
             for (int j = 8; j < 11; j++) {
                 theWorldIKnow[i][j] = 1; // The green area is free.
                 arena.markObserved(j, i, false);
-                direction = 0;
+                robotD = 0;
             }
         }
 
@@ -34,8 +34,8 @@ public class AnotherControl {
             public void onRobotEvent(RobotEvent event) throws RobotException {
                 if (event.getType() == RobotEvent.TASK_FINISH) {
                     if (robot.senseFront() < 10) {
-                        direction += 1;
-                        direction %= 4;
+                        robotD += 1;
+                        robotD %= 4;
                         robot.scheduleTask(new Rotate(0.25));
                     } else {
                         walk();
@@ -81,7 +81,7 @@ public class AnotherControl {
     }
 
     private void walk() {
-        switch (direction) {
+        switch (robotD) {
             case 0:
                 robotX += 1;
                 break;
@@ -100,7 +100,7 @@ public class AnotherControl {
     private void markThreeGridInFrontFree() {
         int x = robotX;
         int y = robotY;
-        switch (direction) {
+        switch (robotD) {
             case 0:
                 x += 2;
             case 2:
