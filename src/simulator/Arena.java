@@ -73,6 +73,11 @@ public class Arena {
                             obstacle.setX(50.0 * j);
                             obstacle.setY(50.0 * i);
                             observedObstacles.getChildren().add(obstacle);
+                        } else if(marked[i][j] == 2) {
+                            Rectangle obstacle = new Rectangle(50, 50, lightRed);
+                            obstacle.setX(50.0 * j);
+                            obstacle.setY(50.0 * i);
+                            observedObstacles.getChildren().add(obstacle);
                         }
                     }
                 }
@@ -101,10 +106,10 @@ public class Arena {
     public void show() {
         root.getChildren().add(board);
         root.getChildren().add(obstacles);
-        root.getChildren().add(observedObstacles);
         root.getChildren().add(green);
         root.getChildren().add(start);
         root.getChildren().add(goal);
+        root.getChildren().add(observedObstacles);
         obstacles.getChildren().removeAll();
         for (int i = 0; i < Main.HEIGHT; i++) {
             for (int j = 0; j < Main.WIDTH; j++) {
@@ -130,6 +135,10 @@ public class Arena {
     }
 
     public void markObserved(int x, int y, boolean hasObstacle) {
-        marked[y][x] = hasObstacle ? 2 : 1; // free 1, not free 2.
+        try {
+            marked[y][x] = hasObstacle ? 2 : 1; // free 1, not free 2.
+        } catch (ArrayIndexOutOfBoundsException ex) {
+
+        }
     }
 }
