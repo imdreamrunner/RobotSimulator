@@ -12,7 +12,7 @@ import java.util.Queue;
 
 public class Robot {
     private Arena arena;
-    private Circle circle, head;
+    private Circle circle, head, left;
     private AnchorPane root;
     private Task task;
     private Queue<Task> taskList;
@@ -26,6 +26,7 @@ public class Robot {
         d = 0;
         circle = new Circle(50, Color.web("black", 0.8));
         head = new Circle(8, Color.web("white"));
+        left = new Circle(8, Color.web("green"));
         taskList = new LinkedList<Task>();
     }
 
@@ -34,6 +35,7 @@ public class Robot {
         display();
         root.getChildren().add(circle);
         root.getChildren().add(head);
+        // root.getChildren().add(left);
     }
 
     void hide() {
@@ -46,6 +48,8 @@ public class Robot {
         circle.setCenterY(5 * y);
         head.setCenterX(5 * x + 36 * Math.cos(2 * d * Math.PI));
         head.setCenterY(5 * y + 36 * Math.sin(2 * d * Math.PI));
+        left.setCenterX(5 * x + 36 * Math.sin(2 * d * Math.PI));
+        left.setCenterY(5 * y - 36 * Math.cos(2 * d * Math.PI));
     }
 
     void tick() {
@@ -116,13 +120,47 @@ public class Robot {
         return distance;
     }
 
+
+    public double senseFrontMid() {
+        return senseFromPoint(x, y, d) - 10;
+    }
+
+    public double senseFrontLeft() {
+        return senseFromPoint(x + 10 * Math.sin(2 * d * Math.PI),
+                y - 10 * Math.cos(2 * d * Math.PI), d) - 10;
+    }
+
+    public double senseFrontRight() {
+        return senseFromPoint(x - 10 * Math.sin(2 * d * Math.PI),
+                y + 10 * Math.cos(2 * d * Math.PI), d) - 10;
+    }
+
+    /*
+
+    public double senseFrontLeft() {
+        if ((d > 0.125 && d < 0.375) || (d > 0.625 && d < 0.675))
+            return senseFromPoint(x + 10 * Math.sin(2 * d * Math.PI),
+                   y + 10 * Math.cos(2 * d * Math.PI), d) - 10;
+        else {
+            return senseFromPoint(x - 10 * Math.sin(2 * d * Math.PI),
+                    y - 10 * Math.cos(2 * d * Math.PI), d) - 10;
+        }
+    }
+
+    public double senseFrontRight() {
+        if ((d > 0.125 && d < 0.375) || (d > 0.625 && d < 0.675))
+            return senseFromPoint(x - 10 * Math.sin(2 * d * Math.PI),
+                    y - 10 * Math.cos(2 * d * Math.PI), d) - 10;
+        else {
+            return senseFromPoint(x + 10 * Math.sin(2 * d * Math.PI),
+                    y + 10 * Math.cos(2 * d * Math.PI), d) - 10;
+        }
+    }
+
+    */
+
     public double senseFront() {
-        double point1 = senseFromPoint(x, y, d);
-        double point2 = senseFromPoint(x + 10 * Math.sin(2 * d * Math.PI),
-                                       y + 10 * Math.cos(2 * d * Math.PI), d);
-        double point3 = senseFromPoint(x - 10 * Math.sin(2 * d * Math.PI),
-                                       y - 10 * Math.cos(2 * d * Math.PI), d);
-        return Math.min(Math.min(point1, point2), point3) - 10;
+        return Math.min(Math.min(senseFrontMid(), senseFrontLeft()), senseFrontRight());
     }
 
     public double senseLeft() {

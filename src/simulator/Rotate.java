@@ -5,6 +5,12 @@ public class Rotate extends Task {
     private double orgD;
 
     public Rotate(double rotate) {
+        if (rotate >= 0.5) {
+            rotate -= 1;
+        }
+        if (rotate <= - 0.5) {
+            rotate += 1;
+        }
         this.rotate = rotate;
     }
 

@@ -56,7 +56,6 @@ public class AnotherControl {
     List<Point> path;
     DirectionList[][] options;
     boolean firstMove, hasMoved = false;
-    int doingTaskList = 0;
 
 
     public AnotherControl(final Arena arena, final Robot robot) throws RobotException {
@@ -88,13 +87,6 @@ public class AnotherControl {
             public void onRobotEvent(RobotEvent event) throws RobotException {
                 markGridAsFree(location.x, location.y);
                 if (event.getType() == RobotEvent.TASK_FINISH) {
-                    if (doingTaskList > 0) {
-                        doingTaskList --;
-                        System.out.println("Scheduled tasks finished " + doingTaskList);
-                        if (doingTaskList > 1) {
-                            return;
-                        }
-                    }
                     System.out.println("Now at " + location.x + " " + location.y);
                     if (location.x == WIDTH - 2 && location.y == HEIGHT - 2) {
                         System.out.println("GOAL REACHED!");
@@ -109,12 +101,20 @@ public class AnotherControl {
                     if (robot.senseFront() > 10) {
                         options[location.y][location.x].add(direction);
                     } else {
-                        Point front = frontBlock(location.clone(), 2);
-                        arena.markObserved(front.x, front.y, true);
-                        leftBlock(front, 1);
-                        arena.markObserved(front.x, front.y, true);
-                        rightBlock(front, 2);
-                        arena.markObserved(front.x, front.y, true);
+                        if (robot.senseFrontLeft() < 10) {
+                            Point front = frontBlock(location.clone(), 2);
+                            leftBlock(front, 1);
+                            arena.markObserved(front.x, front.y, true);
+                        }
+                        if (robot.senseFrontRight() < 10) {
+                            Point front = frontBlock(location.clone(), 2);
+                            rightBlock(front, 1);
+                            arena.markObserved(front.x, front.y, true);
+                        }
+                        if (robot.senseFrontMid() < 10) {
+                            Point front = frontBlock(location.clone(), 2);
+                            arena.markObserved(front.x, front.y, true);
+                        }
                     }
                     if (robot.senseLeft() > 10) {
                         options[location.y][location.x].add(left(direction));
@@ -170,10 +170,8 @@ public class AnotherControl {
                         newDirection = 1;
                     }
                     robot.scheduleTask(new Rotate(0.25*(newDirection - direction)));
-                    doingTaskList ++;
                     direction = newDirection;
                     robot.scheduleTask(new GoStraight(10));
-                    doingTaskList ++;
                     location.x = backTo.x;
                     location.y = backTo.y;
 
