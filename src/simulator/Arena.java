@@ -40,25 +40,25 @@ public class Arena {
         obstacles = new Group();
         observedObstacles = new Group();
 
-        try {
-            Scanner scanner = new Scanner(new File("arena.txt"));
-            for (int i = 0; i < Main.HEIGHT; i++) {
-                if (!scanner.hasNextLine()) {
-                    throw new Exception("Invalid arena file.");
+            try {
+                Scanner scanner = new Scanner(new File("arena.txt"));
+                for (int i = 0; i < Main.HEIGHT; i++) {
+                    if (!scanner.hasNextLine()) {
+                        throw new Exception("Invalid arena file.");
+                    }
+                    String line = scanner.nextLine();
+                    if (line.length() != Main.WIDTH) {
+                        throw new Exception("Invalid arena file.");
+                    }
+                    for (int j = 0; j < Main.WIDTH; j++) {
+                        map[i][j] = line.charAt(j) == '1';
+                    }
                 }
-                String line = scanner.nextLine();
-                if (line.length() != Main.WIDTH) {
-                    throw new Exception("Invalid arena file.");
-                }
-                for (int j = 0; j < Main.WIDTH; j++) {
-                    map[i][j] = line.charAt(j) == '1';
-                }
+                scanner.close();
+            } catch (Exception ex) {
+                System.out.println(ex.getMessage());
+                ex.printStackTrace();
             }
-            scanner.close();
-        } catch (Exception ex) {
-            System.out.println(ex.getMessage());
-            ex.printStackTrace();
-        }
     }
 
     void tick() {
