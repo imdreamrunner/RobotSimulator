@@ -1,5 +1,7 @@
 package simulator;
 
+// Deprecated
+
 public class GoStraightTillHit extends Task {
 
     @Override
