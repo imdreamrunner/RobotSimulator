@@ -131,10 +131,10 @@ public class AnotherControl {
                     if (options[location.y][location.x].contains(direction)) {
                         options[location.y][location.x].remove(direction);
                         boolean nextIsStart = false;
-                        if (location.x == 2 && location.y == 1 && direction == 2) {
+                        if (location.x == 3 && (location.y == 1 || location.y == 2) && direction == 2) {
                             nextIsStart = true;
                         }
-                        if (location.x == 1 && location.y == 2 && direction == 3) {
+                        if ((location.x == 1 || location.x == 2) && location.y == 3 && direction == 3) {
                             nextIsStart = true;
                         }
                         if (!nextIsStart && robot.senseFront() > 10) {
@@ -156,6 +156,10 @@ public class AnotherControl {
                     }
 
                     // back track
+                    if (path.size() <= 2) {
+                        System.out.println("Done");
+                        return;
+                    }
                     path.remove(path.size() - 1);
                     Point backTo = path.get(path.size() - 1);
                     System.out.println("back track to " + backTo.x + " " + backTo.y);
