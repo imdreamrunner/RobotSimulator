@@ -6,12 +6,6 @@ package algorithm;
 
 import simulator.*;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import static simulator.Main.HEIGHT;
-import static simulator.Main.WIDTH;
-
 public class RobotControl {
     Robot robot;
     Arena arena;
@@ -28,7 +22,8 @@ public class RobotControl {
                 if (event.getType() == RobotEvent.TASK_FINISH) {
                     boolean wall_left = (robot.senseLeft() < 10);
                     if (!wall_left) {
-                        robot.doTask(new Rotate(0.25));
+                        robot.doTask(new Rotate(-0.25));
+                        System.out.println("turn left");
                     } else {
 
                         //wall left
@@ -36,12 +31,17 @@ public class RobotControl {
                         boolean wall_right = (robot.senseRight() < 10);
                         System.out.println("wall head: " + wall_head);
                         if (!wall_head) {
+                            System.out.println("go straight");
                             robot.doTask(new GoStraight(10));
                         }
-                        else if (!wall_right) robot.doTask(new Rotate(0.25));
+                        else if (!wall_right) {
+                            robot.doTask(new Rotate(0.25));
+                            System.out.println("turn right");
+                        }
                             else {
 
                                 robot.doTask(new Rotate(0.5));
+                                System.out.println("turn back");
                             }
 
                     }
