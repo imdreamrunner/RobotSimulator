@@ -12,8 +12,8 @@ public class MainControl {
         this.arena = arena;
         this.robot = robot;
         /* Yen's */
-        new RobotControl(arena, robot);
+        // new RobotControl(arena, robot);
         /* Xinzi's */
-        //new AnotherControl(arena, robot);
+        new AnotherControl(arena, robot);
     }
 }

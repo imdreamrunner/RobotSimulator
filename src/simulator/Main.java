@@ -1,6 +1,5 @@
 package simulator;
 
-import algorithm.MainControl;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.event.EventHandler;
@@ -32,7 +31,6 @@ public class Main extends Application {
         robot.show();
 
         Controller controller = fxmlLoader.getController();
-        controller.setArenaAndRobot(arena, robot);
 
         /* for JavaFX only */
         primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
@@ -49,7 +47,28 @@ public class Main extends Application {
         Runner runner = new Runner(arena, robot);
         runner.run();
 
-        MainControl mainControl = new MainControl(arena, robot);
+        // MainControl mainControl = new MainControl(arena, robot);
+
+        // Start listening for commands from RaspberryPi...
+        final AlgoConnect algo = new AlgoConnect();
+        algo.arena = arena;
+        algo.robot = robot;
+        algo.startSocket();
+
+        RobotEventHandler robotEventHandler = new RobotEventHandler() {
+
+            @Override
+            public void onRobotEvent(RobotEvent event) throws RobotException {
+                if (event.getType() == RobotEvent.TASK_FINISH) {
+                    algo.sendTaskFinish();
+                }
+            }
+        };
+
+        robot.addEventHandler(robotEventHandler);
+
+
+        controller.setArenaAndRobot(arena, robot, algo);
     }
 
 
