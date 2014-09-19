@@ -45,4 +45,8 @@ public class Controller {
         jsonObject.put("event", "START");
         this.algoConnect.sendMessage(jsonObject.toJSONString());
     }
+
+    public void onReconnect() {
+        Main.algo.breakLoop();
+    }
 }

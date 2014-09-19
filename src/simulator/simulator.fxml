@@ -12,6 +12,7 @@
   <children>
     <Button layoutX="1000.0" layoutY="30" mnemonicParsing="false" text="EXPLORE" onAction="#onExploreClick" />
     <Button layoutX="1000.0" layoutY="60" mnemonicParsing="false" text="START" onAction="#onStartClick" />
+    <Button layoutX="1000.0" layoutY="90" mnemonicParsing="false" text="RE-CONNECT" onAction="#onReconnect" />
     <!--
     <Button layoutX="1000.0" layoutY="30" mnemonicParsing="false" text="MOVE" onAction="#onMoveClick" />
     <Button layoutX="1000.0" layoutY="60" mnemonicParsing="false" text="STOP" onAction="#onStopClick" />

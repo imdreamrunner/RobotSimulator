@@ -28,6 +28,6 @@ public class Runner {
 
     public void run() {
         time = 0;
-        timer.schedule(timerTask, 0 , 1000/FRAME / 15);
+        timer.schedule(timerTask, 0 , 1000/FRAME / 3);
     }
 }

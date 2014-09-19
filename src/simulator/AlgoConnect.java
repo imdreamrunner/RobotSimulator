@@ -29,9 +29,7 @@ public class AlgoConnect {
     private ServerSocket serverSocket = null;
     private Thread serverSocketThread;
     private Socket socket;
-
-    Robot robot;
-    Arena arena;
+    private boolean break_loop = false;
 
     /**
      * Method to start thread running socket functionality
@@ -41,6 +39,7 @@ public class AlgoConnect {
             @Override
             public void run() {
                 System.out.println("Starting socket server...");
+                Main.primaryStage.setTitle("Starting socket server...");
                 socket = null;
                 try {
                     serverSocket = new ServerSocket(8888);
@@ -48,26 +47,38 @@ public class AlgoConnect {
                     e.printStackTrace();
                 }
                 try {
-                    System.out.println("Try to get message...");
-                    socket = serverSocket.accept();
-                    PrintWriter out = new PrintWriter(socket.getOutputStream());
-                    InputStream is = socket.getInputStream();
-                    while (!Thread.currentThread().isInterrupted()) {
-                        int availableBytes = is.available();
-                        while (availableBytes < 1) {
-                            try{Thread.sleep(100);}catch(InterruptedException ie){ie.printStackTrace();}
-                            availableBytes = is.available();
+                    while (true) {
+                        Main.primaryStage.setTitle("Waiting for connection.");
+                        socket = serverSocket.accept();
+                        System.out.println("Socket connected...");
+                        Main.primaryStage.setTitle("Socket connected.");
+                        PrintWriter out = new PrintWriter(socket.getOutputStream());
+                        InputStream is = socket.getInputStream();
+                        break_loop = false;
+                        while (!Thread.currentThread().isInterrupted() && !break_loop) {
+                            int availableBytes = is.available();
+                            int loop = 0;
+                            while (availableBytes < 1 && !break_loop) {
+                                try{Thread.sleep(100);}catch(InterruptedException ie){ie.printStackTrace();}
+                                availableBytes = is.available();
+                                loop ++;
+                                // if (loop > 1000) break;
+                            }
+                            if (availableBytes == 0) break;
+                            byte[] buffer = new byte[availableBytes];
+                            int is_result = is.read(buffer, 0, availableBytes);
+                            if (is_result < 0) break;
+                            String read = new String(buffer);
+                            for (String line : read.split("\n")) {
+                                System.out.println("line:" + line);
+                                process(line);
+                            }
                         }
-                        byte[] buffer = new byte[availableBytes];
-                        is.read(buffer, 0, availableBytes);
-                        String read = new String(buffer);
-                        for (String line : read.split("\n")) {
-                            System.out.println("line:" + line);
-                            process(line);
-                        }
+                        System.out.println("Socket disconnected.");
+                        Main.primaryStage.setTitle("Socket disconnected.");
+                        is.close();
+                        out.close();
                     }
-                    is.close();
-                    out.close();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -112,9 +123,9 @@ public class AlgoConnect {
             Double value = ((Number)jsonObject.get("value")).doubleValue();
             try {
                 if (action.equals("GO")) {
-                    robot.scheduleTask(new GoStraight(value));
+                    Main.robot.scheduleTask(new GoStraight(value));
                 } else if (action.equals("ROTATE")) {
-                    robot.scheduleTask(new Rotate(value));
+                    Main.robot.scheduleTask(new Rotate(value));
                 }
             } catch (RobotException e) {
                 e.printStackTrace();
@@ -128,13 +139,17 @@ public class AlgoConnect {
         JSONObject obj = new JSONObject();
         obj.put("event","TASK_FINISH");
         JSONArray list = new JSONArray();
-        list.add(robot.senseFrontMid());
-        list.add(robot.senseFrontLeft());
-        list.add(robot.senseFrontRight());
-        list.add(robot.senseLeft());
-        list.add(robot.senseRight());
+        list.add(Main.robot.senseFrontMid());
+        list.add(Main.robot.senseFrontLeft());
+        list.add(Main.robot.senseFrontRight());
+        list.add(Main.robot.senseLeft());
+        list.add(Main.robot.senseRight());
         obj.put("sensors", list);
         sendMessage(obj.toJSONString());
+    }
+
+    public void breakLoop() {
+        break_loop = true;
     }
 
 }

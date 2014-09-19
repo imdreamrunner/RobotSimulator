@@ -17,6 +17,9 @@ public class GoStraight extends Task {
         orgY = robot.y;
         prgX = distance * Math.cos(Math.PI * 2 * robot.d);
         prgY = distance * Math.sin(Math.PI * 2 * robot.d);
+        if (distance == 0) {
+            robot.finishTask(RobotEvent.TASK_FINISH);
+        }
     }
 
     @Override

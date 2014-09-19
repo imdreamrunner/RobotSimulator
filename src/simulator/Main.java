@@ -14,8 +14,14 @@ public class Main extends Application {
     public static int WIDTH = 20;
     public static int HEIGHT = 15;
 
+    public static Robot robot;
+    public static Arena arena;
+    public static Stage primaryStage;
+    public static AlgoConnect algo;
+
     @Override
     public void start(Stage primaryStage) throws Exception{
+        this.primaryStage = primaryStage;
         /* create stage */
         FXMLLoader fxmlLoader = new FXMLLoader();
         AnchorPane root = (AnchorPane) fxmlLoader.load(getClass().getResource("simulator.fxml").openStream());
@@ -23,11 +29,11 @@ public class Main extends Application {
         primaryStage.setScene(new Scene(root/*, 300, 275*/));
 
         /* load the arena */
-        Arena arena = new Arena(root);
+        arena = new Arena(root);
         arena.show();
 
         /* display the robot */
-        Robot robot = new Robot(arena);
+        robot = new Robot(arena);
         robot.show();
 
         Controller controller = fxmlLoader.getController();
@@ -50,9 +56,7 @@ public class Main extends Application {
         // MainControl mainControl = new MainControl(arena, robot);
 
         // Start listening for commands from RaspberryPi...
-        final AlgoConnect algo = new AlgoConnect();
-        algo.arena = arena;
-        algo.robot = robot;
+        algo = new AlgoConnect();
         algo.startSocket();
 
         RobotEventHandler robotEventHandler = new RobotEventHandler() {
