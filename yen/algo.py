@@ -31,18 +31,25 @@ def robot_event_handler(res):
         s_left = sensors[3]
         s_right = sensors[4]
         no_obstacle_ahead = (s_front_left > 10) and (s_front_mid > 10) and (s_front_right > 10)
+        no_obstacle_mid_left = (s_left > 10)
+        no_obstacle_mid_right = (s_right > 10)
 
         global state
-        if state == 0:
-            turn_left()
+        if state == 0 and no_obstacle_mid_right:
+            turn_right()
             state = 1
-        elif state == 1:
+        else:
             if no_obstacle_ahead:
                 go_straight(1)
                 state = 0
             else:
-                turn_right()
-                state = 1
+                if no_obstacle_mid_left:
+                    turn_left()
+                    state = 1
+                else:
+                    turn_left()
+                    turn_left()
+                    state = 1
 
 
 def get_grid(x, y, d, dd):
