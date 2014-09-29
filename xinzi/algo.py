@@ -32,6 +32,71 @@ def right(d):
     return (d+1) % 4
 
 
+def update_map(sensors):
+    s_front_mid = sensors[0]
+    s_front_left = sensors[1]
+    s_front_right = sensors[2]
+    s_left = sensors[3]
+    s_right = sensors[4]
+    # Front Mid
+    s_tmp = s_front_mid
+    g_tmp = 1
+    while s_tmp > 10:
+        x, y = get_grid(robotX, robotY, robotD, g_tmp + 1)
+        set_world(x, y, 1)
+        g_tmp += 1
+        s_tmp -= 10
+    if g_tmp < 8:
+        x, y = get_grid(robotX, robotY, robotD, g_tmp + 1)
+        set_world(x, y, 2)
+    # Front Left
+    s_tmp = s_front_left
+    g_tmp = 1
+    r_x, r_y = get_grid(robotX, robotY, left(robotD), 1)
+    while s_tmp > 10:
+        x, y = get_grid(r_x, r_y, robotD, g_tmp + 1)
+        set_world(x, y, 1)
+        g_tmp += 1
+        s_tmp -= 10
+    if g_tmp < 8:
+        x, y = get_grid(r_x, r_y, robotD, g_tmp + 1)
+        set_world(x, y, 2)
+    # Front Right
+    s_tmp = s_front_right
+    g_tmp = 1
+    r_x, r_y = get_grid(robotX, robotY, right(robotD), 1)
+    while s_tmp > 10:
+        x, y = get_grid(r_x, r_y, robotD, g_tmp + 1)
+        set_world(x, y, 1)
+        g_tmp += 1
+        s_tmp -= 10
+    if g_tmp < 8:
+        x, y = get_grid(r_x, r_y, robotD, g_tmp + 1)
+        set_world(x, y, 2)
+    # Left
+    s_tmp = s_left
+    g_tmp = 1
+    while s_tmp > 10:
+        x, y = get_grid(robotX, robotY, left(robotD), g_tmp + 1)
+        set_world(x, y, 1)
+        g_tmp += 1
+        s_tmp -= 10
+    if g_tmp < 8:
+        x, y = get_grid(robotX, robotY, left(robotD), g_tmp + 1)
+        set_world(x, y, 2)
+    # Right
+    s_tmp = s_right
+    g_tmp = 1
+    while s_tmp > 10:
+        x, y = get_grid(robotX, robotY, right(robotD), g_tmp + 1)
+        set_world(x, y, 1)
+        g_tmp += 1
+        s_tmp -= 10
+    if g_tmp < 8:
+        x, y = get_grid(robotX, robotY, right(robotD), g_tmp + 1)
+        set_world(x, y, 2)
+
+
 def get_grid(x, y, d, dd):
     if d == 0:
         x += dd
@@ -67,72 +132,14 @@ def robot_event_handler(res):
             turn_left()
         elif action == "right":
             turn_right()
+    elif event == "GET_MAP":
+        send_know_world()
     elif event == "TASK_FINISH":
         action = None
         sensors = res['sensors']
-        s_front_mid = sensors[0]
-        s_front_left = sensors[1]
-        s_front_right = sensors[2]
-        s_left = sensors[3]
-        s_right = sensors[4]
-        # Front Mid
-        s_tmp = s_front_mid
-        g_tmp = 1
-        while s_tmp > 10:
-            x, y = get_grid(robotX, robotY, robotD, g_tmp+1)
-            set_world(x, y, 1)
-            g_tmp += 1
-            s_tmp -= 10
-        if g_tmp < 8:
-            x, y = get_grid(robotX, robotY, robotD, g_tmp+1)
-            set_world(x, y, 2)
-        # Front Left
-        s_tmp = s_front_left
-        g_tmp = 1
-        r_x, r_y = get_grid(robotX, robotY, left(robotD), 1)
-        while s_tmp > 10:
-            x, y = get_grid(r_x, r_y, robotD, g_tmp+1)
-            set_world(x, y, 1)
-            g_tmp += 1
-            s_tmp -= 10
-        if g_tmp < 8:
-            x, y = get_grid(r_x, r_y, robotD, g_tmp+1)
-            set_world(x, y, 2)
-        # Front Right
-        s_tmp = s_front_right
-        g_tmp = 1
-        r_x, r_y = get_grid(robotX, robotY, right(robotD), 1)
-        while s_tmp > 10:
-            x, y = get_grid(r_x, r_y, robotD, g_tmp+1)
-            set_world(x, y, 1)
-            g_tmp += 1
-            s_tmp -= 10
-        if g_tmp < 8:
-            x, y = get_grid(r_x, r_y, robotD, g_tmp+1)
-            set_world(x, y, 2)
-        # Left
-        s_tmp = s_left
-        g_tmp = 1
-        while s_tmp > 10:
-            x, y = get_grid(robotX, robotY, left(robotD), g_tmp+1)
-            set_world(x, y, 1)
-            g_tmp += 1
-            s_tmp -= 10
-        if g_tmp < 8:
-            x, y = get_grid(robotX, robotY, left(robotD), g_tmp+1)
-            set_world(x, y, 2)
-        # Right
-        s_tmp = s_right
-        g_tmp = 1
-        while s_tmp > 10:
-            x, y = get_grid(robotX, robotY, right(robotD), g_tmp+1)
-            set_world(x, y, 1)
-            g_tmp += 1
-            s_tmp -= 10
-        if g_tmp < 8:
-            x, y = get_grid(robotX, robotY, right(robotD), g_tmp+1)
-            set_world(x, y, 2)
+        update_map(sensors)
         print_known_world()
+        # send_know_world()
         if goalPoint == 0:
             if robotX == WIDTH - 2 and robotY == HEIGHT - 2:
                 print "Reach goal"
@@ -173,6 +180,21 @@ def print_known_world():
             print knownWorld[i][j],
         print
     print
+
+
+def send_know_world():
+    stri = ""
+    for w in range(WIDTH):
+        for h in range(HEIGHT-1, 0, -1):
+            stri += str(knownWorld[w][h])
+    # print stri
+    robot.send({
+        "event": "MAP",
+        "map_info": stri,
+        "location_x": HEIGHT - robotY,
+        "location_y": robotX + 1,
+        "direction": left(robotD)
+    })
 
 
 def go_straight(unit):
