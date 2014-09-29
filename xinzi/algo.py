@@ -15,7 +15,8 @@ robotD = 0
 knownWorld = [[0 for j in range(HEIGHT)] for i in range(WIDTH)]
 # 0 for unknown 1 for free and 2 for obstacles
 
-toStart = False
+goalPoint = 0
+path_list = []
 
 
 def set_world(x, y, value):
@@ -44,6 +45,7 @@ def get_grid(x, y, d, dd):
 
 
 def robot_event_handler(res):
+    global goalPoint, path_list
     event = res['event']
     if event == "EXPLORE":
         robot.send({
@@ -52,8 +54,21 @@ def robot_event_handler(res):
             "value": 0
         })
     elif event == "START":
-        pass
+        # start fastest run
+        goalPoint = 4
+        if len(path_list) == 0:
+            print "done"
+            return
+        action = path_list.pop(0)
+        print action
+        if action == "straight":
+            go_straight(1)
+        elif action == "left":
+            turn_left()
+        elif action == "right":
+            turn_right()
     elif event == "TASK_FINISH":
+        action = None
         sensors = res['sensors']
         s_front_mid = sensors[0]
         s_front_left = sensors[1]
@@ -118,18 +133,31 @@ def robot_event_handler(res):
             x, y = get_grid(robotX, robotY, right(robotD), g_tmp+1)
             set_world(x, y, 2)
         print_known_world()
-        global toStart
-        if robotX == WIDTH - 2 and robotY == HEIGHT - 2:
-            print "Reach goal"
-            toStart = True
-        elif robotX == 1 and robotY == 1:
-            print "Reach start"
-            sys.exit(0)
-
-        if toStart:
-            action = find_path(knownWorld, robotX, robotY, robotD, 1, 1)
-        else:
-            action = find_path(knownWorld, robotX, robotY, robotD, WIDTH - 2, HEIGHT - 2)
+        if goalPoint == 0:
+            if robotX == WIDTH - 2 and robotY == HEIGHT - 2:
+                print "Reach goal"
+                goalPoint = 1
+            else:
+                action = find_path(knownWorld, robotX, robotY, robotD, WIDTH - 2, HEIGHT - 2)
+        if goalPoint == 1:
+            if robotX == 1 and robotY == 1:
+                print "Reach start"
+                goalPoint = 2
+            else:
+                action = find_path(knownWorld, robotX, robotY, robotD, 1, 1)
+        if goalPoint == 2:
+            from shortest_path import find_path_list
+            path_list = find_path_list(knownWorld, robotX, robotY, robotD, WIDTH - 2, HEIGHT - 2)
+            goalPoint = 3
+            if path_list[0] != "straight":
+                action = path_list.pop(0)
+        if goalPoint == 4:
+            if len(path_list) > 0:
+                action = path_list.pop(0)
+            else:
+                print "done"
+        if action is None:
+            return
         print action
         if action == "straight":
             go_straight(1)
@@ -176,6 +204,7 @@ def turn_right():
         "value": 0.25
     })
 
+# robot = Robot("172.22.94.108", 8080, robot_event_handler)
 robot = Robot("127.0.0.1", 8888, robot_event_handler)
 
 robot.start()
@@ -186,4 +215,7 @@ while 1:
         robot.close()
         sys.exit()
     else:
+        robot.send({
+            "event": "EXPLORE"
+        })
         print "input q to exit."
