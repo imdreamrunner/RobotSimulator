@@ -139,7 +139,7 @@ def robot_event_handler(res):
         sensors = res['sensors']
         update_map(sensors)
         print_known_world()
-        # send_know_world()
+        send_know_world()
         if goalPoint == 0:
             if robotX == WIDTH - 2 and robotY == HEIGHT - 2:
                 print "Reach goal"
