@@ -23,14 +23,14 @@ def find_path_list(map, nx, ny, nd, tx, ty):
         next = c[nx][ny][nd]
         if next[2] == nd:
             path_list.append("straight")
-        elif next[2] == nd + 1:
+        elif next[2] == (nd + 1) % 4:
             path_list.append("right")
         else:
             path_list.append("left")
         nx = next[0]
         ny = next[1]
         nd = next[2]
-        print nx, ny, nd
+        # print nx, ny, nd
     return path_list
 
 

@@ -15,7 +15,7 @@ def find_path(map, nx, ny, nd, tx, ty):
     l = s[nx - 1][ny]
     d = s[nx][ny + 1]
     u = s[nx][ny - 1]
-    print r, l, d, u
+    # print r, l, d, u
     m = min(r, l, d, u)
     # straight has priority
     if nd == 0 and r == m:
