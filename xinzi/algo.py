@@ -1,6 +1,7 @@
 # A very slow but accurate algorithm.
 
 import sys
+import os
 from conn import Robot
 from path_finder import find_path
 
@@ -139,7 +140,7 @@ def robot_event_handler(res):
         sensors = res['sensors']
         update_map(sensors)
         print_known_world()
-        send_know_world()
+
         if goalPoint == 0:
             if robotX == WIDTH - 2 and robotY == HEIGHT - 2:
                 print "Reach goal"
@@ -153,11 +154,13 @@ def robot_event_handler(res):
             else:
                 action = find_path(knownWorld, robotX, robotY, robotD, 1, 1)
         if goalPoint == 2:
-            from shortest_path import find_path_list
-            path_list = find_path_list(knownWorld, robotX, robotY, robotD, WIDTH - 2, HEIGHT - 2)
-            goalPoint = 3
+            if len(path_list) == 0:
+                from shortest_path import find_path_list
+                path_list = find_path_list(knownWorld, robotX, robotY, robotD, WIDTH - 2, HEIGHT - 2)
             if path_list[0] != "straight":
                 action = path_list.pop(0)
+            else:
+                goalPoint = 3
         if goalPoint == 4:
             if len(path_list) > 0:
                 action = path_list.pop(0)
@@ -165,7 +168,7 @@ def robot_event_handler(res):
                 print "done"
         if action is None:
             return
-        print action
+        print "Next step:", action
         if action == "straight":
             go_straight(1)
         elif action == "left":
@@ -173,21 +176,50 @@ def robot_event_handler(res):
         elif action == "right":
             turn_right()
 
+        send_know_world()
+
 
 def print_known_world():
+    os.system('clear')
+    expl = 0b11
+    obst = 0xF
+    """
     for j in range(HEIGHT):
         for i in range(WIDTH):
             print knownWorld[i][j],
         print
     print
+    """
+    # for w in range(WIDTH-1, -1, -1):
+    for w in range(WIDTH):
+        for h in range(HEIGHT):
+            print knownWorld[WIDTH - w - 1][h],
+            # print knownWorld[w][h],
+            expl <<= 1
+            if knownWorld[w][h] > 0:
+                expl |= 0b1
+                obst <<= 1
+                if knownWorld[w][h] == 2:
+                    obst |= 0b1
+        print
+    print
+    expl <<= 2
+    expl |= 0b11
+
+    if obst.bit_length() % 4 != 0:
+        obst <<= 4 - obst.bit_length() % 4
+    obst_string = format(obst, "X")[1:]
+
+    print "Explored:", format(expl, "X")
+    print "Obstacle:", obst_string
+    print
 
 
 def send_know_world():
     stri = ""
-    for w in range(WIDTH):
-        for h in range(HEIGHT-1, -1, -1):
+    for w in range(WIDTH-1, -1, -1):
+        for h in range(HEIGHT):
             stri += str(knownWorld[w][h])
-    # print stri
     robot.send({
         "event": "MAP",
         "map_info": stri,
