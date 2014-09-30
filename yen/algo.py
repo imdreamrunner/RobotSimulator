@@ -19,6 +19,8 @@ dx = [-1, 0, 1, 0]
 dy = [0, 1, 0, -1]
 
 
+#free: mark state
+
 def robot_event_handler(res):
     event = res['event']
     if event == "EXPLORE":
