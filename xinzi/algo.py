@@ -185,7 +185,7 @@ def print_known_world():
 def send_know_world():
     stri = ""
     for w in range(WIDTH):
-        for h in range(HEIGHT-1, 0, -1):
+        for h in range(HEIGHT-1, -1, -1):
             stri += str(knownWorld[w][h])
     # print stri
     robot.send({
