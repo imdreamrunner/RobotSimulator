@@ -180,7 +180,8 @@ def robot_event_handler(res):
 
 
 def print_known_world():
-    os.system('clear')
+    os.system('clear')  # linux
+    os.system('cls')    # windows
     expl = 0b11
     obst = 0xF
     """
