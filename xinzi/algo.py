@@ -2,8 +2,14 @@
 
 import sys
 import os
+import time
 from conn import Robot
 from path_finder import find_path
+from util import *
+
+
+TARGET_COVERAGE = 100  # in percentage
+TIME_LIMIT = 60        # in seconds
 
 
 WIDTH = 20
@@ -17,6 +23,8 @@ knownWorld = [[0 for j in range(HEIGHT)] for i in range(WIDTH)]
 # 0 for unknown 1 for free and 2 for obstacles
 
 goalPoint = 0
+# 0 to goal, 1 to start, 2 shortest preparation, 3 wait for start, 4 fastest run
+explored_start_time = 0.0
 path_list = []
 
 
@@ -111,9 +119,10 @@ def get_grid(x, y, d, dd):
 
 
 def robot_event_handler(res):
-    global goalPoint, path_list
+    global goalPoint, path_list, explored_start_time
     event = res['event']
     if event == "EXPLORE":
+        explored_start_time = time.time()
         robot.send({
             "event": "ACTION",
             "action": "GO",
@@ -141,6 +150,18 @@ def robot_event_handler(res):
         update_map(sensors)
         print_known_world()
 
+        if goalPoint < 2:
+            time_length = time.time() - explored_start_time
+            coverage = get_coverage(knownWorld, WIDTH, HEIGHT) * 100
+            print "Exploration time:", time_length, "s"
+            print "Exploration coverage:", coverage, "%"
+            print
+            if time_length > TIME_LIMIT:
+                print "Time limited exceeded."
+                return
+            if coverage > TARGET_COVERAGE:
+                print "Target coverage achieved."
+                return
         if goalPoint == 0:
             if robotX == WIDTH - 2 and robotY == HEIGHT - 2:
                 print "Reach goal"
@@ -182,37 +203,9 @@ def robot_event_handler(res):
 def print_known_world():
     os.system('cls')    # windows
     os.system('clear')  # linux
-    expl = 0b11
-    obst = 0xF
-    """
-    for j in range(HEIGHT):
-        for i in range(WIDTH):
-            print knownWorld[i][j],
-        print
-    print
-    """
-    # for w in range(WIDTH-1, -1, -1):
-    for w in range(WIDTH):
-        for h in range(HEIGHT):
-            print knownWorld[WIDTH - w - 1][h],
-            # print knownWorld[w][h],
-            expl <<= 1
-            if knownWorld[w][h] > 0:
-                expl |= 0b1
-                obst <<= 1
-                if knownWorld[w][h] == 2:
-                    obst |= 0b1
-        print
-    print
-    expl <<= 2
-    expl |= 0b11
-
-    if obst.bit_length() % 4 != 0:
-        obst <<= 4 - obst.bit_length() % 4
-    obst_string = format(obst, "X")[1:]
-
-    print "Explored:", format(expl, "X")
-    print "Obstacle:", obst_string
+    explored_string, obstacle_string = get_hex_map(knownWorld, WIDTH, HEIGHT)
+    print "Explored:", explored_string
+    print "Obstacle:", obstacle_string
     print
 
 
