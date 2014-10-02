@@ -123,11 +123,7 @@ def robot_event_handler(res):
     event = res['event']
     if event == "EXPLORE":
         explored_start_time = time.time()
-        robot.send({
-            "event": "ACTION",
-            "action": "GO",
-            "value": 0
-        })
+        go_straight(0)
     elif event == "START":
         # start fastest run
         goalPoint = 4
@@ -229,7 +225,7 @@ def go_straight(unit):
     robot.send({
         "event": "ACTION",
         "action": "GO",
-        "value": 10.0 * unit
+        "quantity": unit
     })
 
 
@@ -239,7 +235,7 @@ def turn_left():
     robot.send({
         "event": "ACTION",
         "action": "ROTATE",
-        "value": -0.25
+        "quantity": -1
     })
 
 
@@ -249,7 +245,7 @@ def turn_right():
     robot.send({
         "event": "ACTION",
         "action": "ROTATE",
-        "value": 0.25
+        "quantity": 1
     })
 
 # robot = Robot("172.22.94.108", 8080, robot_event_handler)
@@ -262,8 +258,15 @@ while 1:
     if s == 'q':
         robot.close()
         sys.exit()
-    else:
+    elif s == "left":
+        turn_left()
+    elif s == "right":
+        turn_right()
+    elif s == "go":
+        go_straight(1)
+    elif s == "explore":
         robot.send({
             "event": "EXPLORE"
         })
+    else:
         print "input q to exit."
