@@ -15,6 +15,12 @@ state = 1
 dx = [-1, 0, 1, 0]
 dy = [0, 1, 0, -1]
 
+sx = [0, 1, 0, -1]
+sy = [1, 0, -1, 0]
+
+zx = [0, -1, 0, 1]
+zy = [-1, 0, 1, 0]
+
 
 knownWorld = [[0] * WIDTH for i in range(HEIGHT)]
 visited = [[[False for d in range(4)] for j in range(WIDTH)] for i in range(HEIGHT)]
@@ -66,7 +72,7 @@ def update_known_world(sensors):
             update_known_cell(robotX+i-1, robotY+j-1, 1)
 
     s_front_mid = sensors[0]
-    s_front_right = sensors[1]
+    s_front_left = sensors[1]
     s_front_right = sensors[2]
     s_left = sensors[3]
     s_right = sensors[4]
@@ -74,13 +80,16 @@ def update_known_world(sensors):
     update_known_cell_from_sensor(robotX, robotY, robotD, s_front_mid)
     update_known_cell_from_sensor(robotX, robotY, right(robotD), s_right)
     update_known_cell_from_sensor(robotX, robotY, left(robotD), s_left)
+    update_known_cell_from_sensor(robotX+zx[robotD], robotY+zy[robotD], robotD, s_front_left)
+    update_known_cell_from_sensor(robotX+sx[robotD], robotY+sy[robotD], robotD, s_front_right)
 
 
 def handle_task_finish(res):
-    global robotX, robotY, goalX, goalY, challenge, visited, state
+    global robotX,  robotY, goalX, goalY, challenge, visited, state
     print "Robot position: %d %d %d " % (robotX, robotY, robotD)
-
     sensors = res['sensors']
+    print "sensors: %d %d %d %d %d" %(sensors[0], sensors[1], sensors[2], sensors[3], sensors[4])
+
     s_front_mid = sensors[0]
     s_front_left = sensors[1]
     s_front_right = sensors[2]
@@ -107,24 +116,24 @@ def handle_task_finish(res):
             print_known_world()
             print "return"
             return
+    print_known_world()
 
     action = explore(knownWorld, robotX, robotY, robotD, goalX, goalY)
     if action == 0:
         go_straight(1)
-    if action == 1:
-        turn_right()
-    else:
+    elif action == 3:
         turn_left()
+    else:
+        turn_right()
 
 
 def print_known_world():
 
     # for x in range(HEIGHT):
     #     for y in range(WIDTH):
-    #         print knownWorld[x][y],
+    #         print "%3d" %(knownWorld[x][y]),
     #     print
     # print
-
     os.system('cls')    # windows
     # os.system('clear')  # linux
     expl = 0b11
