@@ -3,16 +3,17 @@ HEIGHT = 15
 MAXC = 100
 
 h = [[0 for j in range(WIDTH)] for i in range(HEIGHT)]
-dx = [-1, 0, 1, 0]
-dy = [0, 1, 0, -1]
+DX = [-1, 0, 1, 0]
+DY = [0, 1, 0, -1]
+W = [0, 1, 2, 0]
 
 
-def explore(knownWorld, x, y, d, goalX, goalY):
-    update_heuristic_all(knownWorld, goalX, goalY)
+def explore(known_world, x, y, d, goalX, goalY):
+    update_heuristic_all(known_world, goalX, goalY)
 
     for i in range(HEIGHT):
         for j in range(WIDTH):
-            print "%4d" %(h[i][j]),
+            print "%4d" % (h[i][j]),
         print
     print
 
@@ -20,11 +21,11 @@ def explore(knownWorld, x, y, d, goalX, goalY):
     ans = 1
 
     for k in range(4):
-        newx, newy, newd = x+dx[(d+k) % 4], y+dy[(d+k) % 4], (d+k) % 4
-        if k != 0 or is_standable(knownWorld, newx, newy):
-            if not is_obstacle(knownWorld, newx, newy):
-                if h[newx][newy] < min_dis:
-                    min_dis = h[newx][newy]
+        newx, newy, newd = x+DX[(d+k) % 4], y+DY[(d+k) % 4], (d+k) % 4
+        if k != 0 or is_standable(known_world, newx, newy):
+            if not is_obstacle(known_world, newx, newy):
+                if h[newx][newy] + W[k] < min_dis:
+                    min_dis = h[newx][newy] + W[k]
                     ans = k
     return ans
 
@@ -33,35 +34,35 @@ def is_outside(x, y):
     return x < 0 or x >= HEIGHT or y < 0 or y >= WIDTH
 
 
-def is_obstacle(knownWorld, x, y):
+def is_obstacle(known_world, x, y):
     if is_outside(x, y):
         return True
-    return knownWorld[x][y] == 2
+    return known_world[x][y] == 2
 
 
-def is_free(knownWorld, x, y):
+def is_free(known_world, x, y):
     if is_outside(x, y):
         return False
-    return knownWorld[x][y] == 1
+    return known_world[x][y] == 1
 
 
-def is_standable(knownWorld, x, y):
+def is_standable(known_world, x, y):
     for i in range(3):
         for j in range(3):
-            if not is_free(knownWorld, x+i-1, y+j-1):
+            if not is_free(known_world, x+i-1, y+j-1):
                 return False
     return True
 
 
-def can_go(knownWorld, x, y):
+def can_go(known_world, x, y):
     for i in range(3):
         for j in range(3):
-            if is_obstacle(knownWorld, x+i-1, y+j-1):
+            if is_obstacle(known_world, x+i-1, y+j-1):
                 return False
     return True
 
 
-def update_heuristic_all(knownWorld, goalX, goalY):
+def update_heuristic_all(known_world, goalX, goalY):
     global h
     h = [[MAXC for j in range(WIDTH)] for i in range(HEIGHT)]
     free = [[True for j in range(WIDTH)] for i in range(HEIGHT)]
@@ -80,8 +81,8 @@ def update_heuristic_all(knownWorld, goalX, goalY):
             break
         free[x][y] = False
         for k in range(4):
-            newx, newy = x+dx[k], y+dy[k]
-            if can_go(knownWorld, newx, newy):
+            newx, newy = x+DX[k], y+DY[k]
+            if can_go(known_world, newx, newy):
                 if free[newx][newy] and h[newx][newy] > h[x][y] + 1:
                     h[newx][newy] = h[x][y] + 1
 

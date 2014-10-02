@@ -20,9 +20,9 @@ knownWorld = [[0] * WIDTH for i in range(HEIGHT)]
 def robot_event_handler(res):
     event = res['event']
     if event == "EXPLORE":
-        go_straight(0)
+        turn_right()
     elif event == "START":
-        go_straight(0)
+        turn_left()
     elif event == "GET_MAP":
         send_known_world()
     elif event == "TASK_FINISH":
