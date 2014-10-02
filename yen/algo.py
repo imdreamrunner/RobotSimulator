@@ -28,6 +28,7 @@ def robot_event_handler(res):
     elif event == "TASK_FINISH":
         print "TASK FINISH"
         handle_task_finish(res)
+        send_known_world()
 
 
 def is_outside(x, y):
@@ -143,8 +144,8 @@ def send_known_world():
     robot.send({
         "event": "MAP",
         "map_info": stri,
-        "location_x": HEIGHT - robotY,
-        "location_y": robotX + 1,
+        "location_x": HEIGHT - robotX,
+        "location_y": robotY + 1,
         "direction": left(robotD)
     })
 
