@@ -5,41 +5,24 @@ from new_path_finder import explore
 
 WIDTH = 20
 HEIGHT = 15
-
+challenge = 0
 robotX, robotY, robotD = 7, 9, 1
 goalX, goalY = 13, 18
-#challenge = 0: exploration to goal; 1: exploration to start; 2:run
-challenge = 0
-state = 1
 
 dx = [-1, 0, 1, 0]
 dy = [0, 1, 0, -1]
-
 sx = [0, 1, 0, -1]
 sy = [1, 0, -1, 0]
 
-zx = [0, -1, 0, 1]
-zy = [-1, 0, 1, 0]
-
-
 knownWorld = [[0] * WIDTH for i in range(HEIGHT)]
-visited = [[[False for d in range(4)] for j in range(WIDTH)] for i in range(HEIGHT)]
 
 
 def robot_event_handler(res):
     event = res['event']
     if event == "EXPLORE":
-        robot.send({
-            "event": "ACTION",
-            "action": "GO",
-            "value": 0.0
-        })
+        go_straight(0)
     elif event == "START":
-        robot.send({
-            "event": "ACTION",
-            "action": "GO",
-            "value": 0.0
-        })
+        go_straight(0)
     elif event == "GET_MAP":
         send_known_world()
     elif event == "TASK_FINISH":
@@ -66,7 +49,7 @@ def update_known_cell_from_sensor(x, y, direction, distance):
 
 
 def update_known_world(sensors):
-    # 8 cell around robot = free
+    # 8 cell around robot marked free
     for i in range(3):
         for j in range(3):
             update_known_cell(robotX+i-1, robotY+j-1, 1)
@@ -80,7 +63,7 @@ def update_known_world(sensors):
     update_known_cell_from_sensor(robotX, robotY, robotD, s_front_mid)
     update_known_cell_from_sensor(robotX, robotY, right(robotD), s_right)
     update_known_cell_from_sensor(robotX, robotY, left(robotD), s_left)
-    update_known_cell_from_sensor(robotX+zx[robotD], robotY+zy[robotD], robotD, s_front_left)
+    update_known_cell_from_sensor(robotX-sx[robotD], robotY-sy[robotD], robotD, s_front_left)
     update_known_cell_from_sensor(robotX+sx[robotD], robotY+sy[robotD], robotD, s_front_right)
 
 
@@ -89,15 +72,6 @@ def handle_task_finish(res):
     print "Robot position: %d %d %d " % (robotX, robotY, robotD)
     sensors = res['sensors']
     print "sensors: %d %d %d %d %d" %(sensors[0], sensors[1], sensors[2], sensors[3], sensors[4])
-
-    s_front_mid = sensors[0]
-    s_front_left = sensors[1]
-    s_front_right = sensors[2]
-    s_left = sensors[3]
-    s_right = sensors[4]
-    no_obstacle_ahead = (s_front_left > 10) and (s_front_mid > 10) and (s_front_right > 10)
-    no_obstacle_mid_left = (s_left > 10)
-    no_obstacle_mid_right = (s_right > 10)
 
     update_known_world(sensors)
 
@@ -116,7 +90,6 @@ def handle_task_finish(res):
             print_known_world()
             print "return"
             return
-    print_known_world()
 
     action = explore(knownWorld, robotX, robotY, robotD, goalX, goalY)
     if action == 0:
@@ -170,16 +143,16 @@ def send_known_world():
     robot.send({
         "event": "MAP",
         "map_info": stri,
-        "location_x": HEIGHT - robotX,
-        "location_y": robotY + 1,
+        "location_x": HEIGHT - robotY,
+        "location_y": robotX + 1,
         "direction": left(robotD)
     })
 
 
 def get_grid(x, y, d, dd):
-    x += dx[d]*dd
-    y += dy[d]*dd
-    return x, y
+    newx = x + dx[d] * dd
+    newy = y + dy[d] * dd
+    return newx, newy
 
 
 def left(d):
@@ -191,38 +164,33 @@ def right(d):
 
 
 def go_straight(unit):
-    print "go straight"
     global robotX, robotY, robotD
     robotX, robotY = get_grid(robotX, robotY, robotD, unit)
-
     robot.send({
         "event": "ACTION",
         "action": "GO",
-        "value": 10.0 * unit
+        "quantity": unit
     })
 
 
 def turn_left():
-    print "turn left"
     global robotD
     robotD = left(robotD)
     robot.send({
         "event": "ACTION",
         "action": "ROTATE",
-        "value": -0.25
+        "quantity": -1
     })
 
 
 def turn_right():
-    print "turn right"
     global robotD
     robotD = right(robotD)
     robot.send({
         "event": "ACTION",
         "action": "ROTATE",
-        "value": 0.25
+        "quantity": 1
     })
-
 
 robot = Robot("127.0.0.1", 8888, robot_event_handler)
 
@@ -233,5 +201,15 @@ while 1:
     if s == 'q':
         robot.close()
         sys.exit()
+    elif s == "left":
+        turn_left()
+    elif s == "right":
+        turn_right()
+    elif s == "go":
+        go_straight(1)
+    elif s == "explore":
+        robot.send({
+            "event": "EXPLORE"
+        })
     else:
         print "input q to exit."
