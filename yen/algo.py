@@ -83,6 +83,8 @@ def handle_task_finish(res):
     print "Robot position: %d %d %d " % (robotX, robotY, robotD)
     sensors = res['sensors']
 
+    print_known_world_console()
+
     update_known_world(sensors)
 
     #Check if reach goal
@@ -110,17 +112,22 @@ def handle_task_finish(res):
         turn_right()
 
 
+def print_known_world_console():
+    for x in range(HEIGHT):
+        for y in range(WIDTH):
+            print "%2d" %(knownWorld[x][y]),
+        print
+    print
+
+
 def print_known_world():
 
-    # for x in range(HEIGHT):
-    #     for y in range(WIDTH):
-    #         print "%3d" %(knownWorld[x][y]),
-    #     print
-    # print
     os.system('cls')    # windows
     # os.system('clear')  # linux
+
     expl = 0b11
     obst = 0xF
+
     for w in range(WIDTH):
         for h in range(HEIGHT):
             print knownWorld[h][WIDTH - w - 1],
