@@ -8,12 +8,19 @@ from path_finder import find_path
 from util import *
 
 
+LOCAL = True
+PI_IP = "192.168.14.144"
+PI_PORT = 8080
+
 TARGET_COVERAGE = 100   # in percentage
 TIME_LIMIT = 100        # in seconds
 
-
 WIDTH = 20
 HEIGHT = 15
+
+if LOCAL:
+    PI_IP = "127.0.0.1"
+    PI_PORT = 8888
 
 robotX = 9
 robotY = 7
@@ -60,6 +67,20 @@ def update_map(sensors):
         x, y = get_grid(robotX, robotY, robotD, g_tmp + 1)
         set_world(x, y, 2)
     """
+    # Front Mid Temp
+    s_tmp = min(s_front_left, s_front_right)
+    g_tmp = 1
+    r_x, r_y = get_grid(robotX, robotY, left(robotD), 1)
+    while s_tmp > 10:
+        x, y = get_grid(robotX, robotY, robotD, g_tmp + 1)
+        set_world(x, y, 1)
+        g_tmp += 1
+        s_tmp -= 10
+        if g_tmp > 4:
+            break
+    if g_tmp < 5:
+        x, y = get_grid(r_x, r_y, robotD, g_tmp + 1)
+        set_world(x, y, 2)
     # Front Left
     s_tmp = s_front_left
     g_tmp = 1
@@ -72,8 +93,9 @@ def update_map(sensors):
         if g_tmp > 4:
             break
     if g_tmp < 5:
-        x, y = get_grid(r_x, r_y, robotD, g_tmp + 1)
-        set_world(x, y, 2)
+        if s_front_right < s_front_left:
+            x, y = get_grid(r_x, r_y, robotD, g_tmp + 1)
+            set_world(x, y, 2)
     # Front Right
     s_tmp = s_front_right
     g_tmp = 1
@@ -86,12 +108,13 @@ def update_map(sensors):
         if g_tmp > 4:
             break
     if g_tmp < 5:
-        x, y = get_grid(r_x, r_y, robotD, g_tmp + 1)
-        set_world(x, y, 2)
+        if s_front_left < s_front_right:
+            x, y = get_grid(r_x, r_y, robotD, g_tmp + 1)
+            set_world(x, y, 2)
     # Left
     s_tmp = s_left
     g_tmp = 1
-    while s_tmp > 10:
+    while s_tmp > 5:
         x, y = get_grid(robotX, robotY, left(robotD), g_tmp + 1)
         set_world(x, y, 1)
         g_tmp += 1
@@ -104,7 +127,7 @@ def update_map(sensors):
     # Right
     s_tmp = s_right
     g_tmp = 1
-    while s_tmp > 10:
+    while s_tmp > 5:
         x, y = get_grid(robotX, robotY, right(robotD), g_tmp + 1)
         set_world(x, y, 1)
         g_tmp += 1
@@ -258,8 +281,7 @@ def turn_right():
         "quantity": 1
     })
 
-robot = Robot("192.168.14.144", 8080, robot_event_handler)
-#robot = Robot("127.0.0.1", 8888, robot_event_handler)
+robot = Robot(PI_IP, PI_PORT, robot_event_handler)
 
 robot.start()
 
