@@ -11,11 +11,11 @@ W = [0, 1, 2, 0]
 def explore(known_world, x, y, d, goalX, goalY):
     update_heuristic_all(known_world, goalX, goalY)
 
-    # for i in range(HEIGHT):
-    #     for j in range(WIDTH):
-    #         print "%4d" % (h[i][j]),
-    #     print
-    # print
+    for i in range(HEIGHT):
+        for j in range(WIDTH):
+            print "%4d" % (h[i][j]),
+        print
+    print
 
     min_dis = MAXC
     ans = 1

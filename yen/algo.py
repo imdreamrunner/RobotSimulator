@@ -42,11 +42,21 @@ def update_known_cell(x, y, val):
 
 
 def update_known_cell_from_sensor(x, y, direction, distance):
+    if distance > 50:
+        distance = 50
+
+    if distance > 45:
+        no_obstacle = True
+    else:
+        no_obstacle = False
+
     while distance > -10:
         update_known_cell(x, y, 1)
         x, y = get_grid(x, y, direction, 1)
         distance -= 10
-    update_known_cell(x, y, 2)
+
+    if not no_obstacle:
+        update_known_cell(x, y, 2)
 
 
 def update_known_world(sensors):
@@ -72,7 +82,6 @@ def handle_task_finish(res):
     global robotX,  robotY, goalX, goalY, challenge, visited, state
     print "Robot position: %d %d %d " % (robotX, robotY, robotD)
     sensors = res['sensors']
-    print "sensors: %d %d %d %d %d" %(sensors[0], sensors[1], sensors[2], sensors[3], sensors[4])
 
     update_known_world(sensors)
 
@@ -193,7 +202,8 @@ def turn_right():
         "quantity": 1
     })
 
-robot = Robot("127.0.0.1", 8888, robot_event_handler)
+robot = Robot("192.168.14.144", 8080, robot_event_handler)
+# robot = Robot("127.0.0.1", 8888, robot_event_handler)
 
 robot.start()
 
