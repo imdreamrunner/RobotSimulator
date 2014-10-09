@@ -69,6 +69,6 @@ def can_go(x, y):
                 return False
             if j < 0 or j > HEIGHT - 1:
                 return False
-            if m[i][j] == 2:
+            if m[i][j] != 1:
                 return False
     return True
