@@ -6,8 +6,13 @@ m = []
 s = []
 
 
+godMode = False
+
+
 def find_path(map, nx, ny, nd, tx, ty):
-    global m, s
+    global m, s, godMode
+    if godMode:
+        print "ALGO IS IN GOD MODE!"
     m = map
     s = [[MAX for j in range(HEIGHT)] for i in range(WIDTH)]
     update_grid(tx, ty, 0)
@@ -18,7 +23,8 @@ def find_path(map, nx, ny, nd, tx, ty):
     # print r, l, d, u
     m = min(r, l, d, u)
     if m == MAX:
-        print "Magic happens"
+        print "Magic happens!"
+        godMode = True
         return "right"
     # straight has priority
     if nd == 0 and r == m:
@@ -55,12 +61,13 @@ def update_grid(nx, ny, val):
 
 
 def can_go(x, y):
+    global godMode
     for i in range(x-1, x + 2):
         for j in range(y - 1, y + 2):
             if i < 0 or i > WIDTH - 1:
                 return False
             if j < 0 or j > HEIGHT - 1:
                 return False
-            if m[i][j] == 2:
+            if not godMode and m[i][j] >= 2:
                 return False
     return True

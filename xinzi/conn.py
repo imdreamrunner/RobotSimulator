@@ -15,6 +15,7 @@ class Robot(threading.Thread):
 
     def run(self):
         try:
+            print "trying to connect"
             self.sock.connect((self.host, self.port))
         except socket.error:
             print "Socket connection refused."
