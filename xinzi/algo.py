@@ -8,8 +8,8 @@ from path_finder import find_path
 from util import *
 
 
-TARGET_COVERAGE = 100  # in percentage
-TIME_LIMIT = 60        # in seconds
+TARGET_COVERAGE = 100   # in percentage
+TIME_LIMIT = 100        # in seconds
 
 
 WIDTH = 20
@@ -48,6 +48,7 @@ def update_map(sensors):
     s_left = sensors[3]
     s_right = sensors[4]
     # Front Mid
+    """
     s_tmp = s_front_mid
     g_tmp = 1
     while s_tmp > 10:
@@ -58,6 +59,7 @@ def update_map(sensors):
     if g_tmp < 8:
         x, y = get_grid(robotX, robotY, robotD, g_tmp + 1)
         set_world(x, y, 2)
+    """
     # Front Left
     s_tmp = s_front_left
     g_tmp = 1
@@ -67,7 +69,9 @@ def update_map(sensors):
         set_world(x, y, 1)
         g_tmp += 1
         s_tmp -= 10
-    if g_tmp < 8:
+        if g_tmp > 4:
+            break
+    if g_tmp < 5:
         x, y = get_grid(r_x, r_y, robotD, g_tmp + 1)
         set_world(x, y, 2)
     # Front Right
@@ -79,7 +83,9 @@ def update_map(sensors):
         set_world(x, y, 1)
         g_tmp += 1
         s_tmp -= 10
-    if g_tmp < 8:
+        if g_tmp > 4:
+            break
+    if g_tmp < 5:
         x, y = get_grid(r_x, r_y, robotD, g_tmp + 1)
         set_world(x, y, 2)
     # Left
@@ -90,7 +96,9 @@ def update_map(sensors):
         set_world(x, y, 1)
         g_tmp += 1
         s_tmp -= 10
-    if g_tmp < 8:
+        if g_tmp > 4:
+            break
+    if g_tmp < 5:
         x, y = get_grid(robotX, robotY, left(robotD), g_tmp + 1)
         set_world(x, y, 2)
     # Right
@@ -101,7 +109,9 @@ def update_map(sensors):
         set_world(x, y, 1)
         g_tmp += 1
         s_tmp -= 10
-    if g_tmp < 8:
+        if g_tmp > 4:
+            break
+    if g_tmp < 5:
         x, y = get_grid(robotX, robotY, right(robotD), g_tmp + 1)
         set_world(x, y, 2)
 
@@ -213,8 +223,8 @@ def send_know_world():
     robot.send({
         "event": "MAP",
         "map_info": stri,
-        "location_x": HEIGHT - robotY,
-        "location_y": robotX + 1,
+        "location_x": robotY,
+        "location_y": WIDTH - robotX - 1,
         "direction": left(robotD)
     })
 
@@ -248,8 +258,8 @@ def turn_right():
         "quantity": 1
     })
 
-# robot = Robot("172.22.94.108", 8080, robot_event_handler)
-robot = Robot("127.0.0.1", 8888, robot_event_handler)
+robot = Robot("192.168.14.144", 8080, robot_event_handler)
+#robot = Robot("127.0.0.1", 8888, robot_event_handler)
 
 robot.start()
 

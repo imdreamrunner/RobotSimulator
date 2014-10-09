@@ -17,6 +17,9 @@ def find_path(map, nx, ny, nd, tx, ty):
     u = s[nx][ny - 1]
     # print r, l, d, u
     m = min(r, l, d, u)
+    if m == MAX:
+        print "Magic happens"
+        return "right"
     # straight has priority
     if nd == 0 and r == m:
         return "straight"
