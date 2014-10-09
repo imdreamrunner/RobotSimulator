@@ -193,7 +193,8 @@ def turn_right():
         "quantity": 1
     })
 
-robot = Robot("127.0.0.1", 8888, robot_event_handler)
+# robot = Robot("127.0.0.1", 8888, robot_event_handler)
+robot = Robot("192.168.14.144", 8080, robot_event_handler)
 
 robot.start()
 
