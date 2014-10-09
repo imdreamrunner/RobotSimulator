@@ -61,7 +61,7 @@ def update_known_world(sensors):
     s_left = sensors[3]
     s_right = sensors[4]
 
-    update_known_cell_from_sensor(robotX, robotY, robotD, s_front_mid)
+    # update_known_cell_from_sensor(robotX, robotY, robotD, s_front_mid)
     update_known_cell_from_sensor(robotX, robotY, right(robotD), s_right)
     update_known_cell_from_sensor(robotX, robotY, left(robotD), s_left)
     update_known_cell_from_sensor(robotX-sx[robotD], robotY-sy[robotD], robotD, s_front_left)
