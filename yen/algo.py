@@ -3,6 +3,8 @@ import sys
 from conn import Robot
 from new_path_finder import explore
 
+DISPLAY_MAP = True
+
 WIDTH = 20
 HEIGHT = 15
 challenge = 0
@@ -157,13 +159,18 @@ def send_known_world():
     for w in range(WIDTH-1, -1, -1):
         for h in range(HEIGHT):
             stri += str(knownWorld[h][w])
-    robot.send({
+
+    map_data = {
         "event": "MAP",
         "map_info": stri,
-        "location_x": HEIGHT - robotX,
-        "location_y": robotY + 1,
-        "direction": left(robotD)
-    })
+        "location_y": WIDTH - robotY - 1,
+        "location_x": robotX,
+        "direction": right(right(robotD))
+    }
+
+    robot.send(map_data)
+    if DISPLAY_MAP:
+        mapDisplay.send(map_data)
 
 
 def get_grid(x, y, d, dd):
@@ -209,10 +216,14 @@ def turn_right():
         "quantity": 1
     })
 
-robot = Robot("192.168.14.144", 8080, robot_event_handler)
-# robot = Robot("127.0.0.1", 8888, robot_event_handler)
+# robot = Robot("192.168.14.144", 8080, robot_event_handler)
+robot = Robot("127.0.0.1", 8080, robot_event_handler)
+mapDisplay = Robot("127.0.0.1", 10200, robot_event_handler)
 
 robot.start()
+if DISPLAY_MAP:
+    mapDisplay.start()
+
 
 while 1:
     s = raw_input()
