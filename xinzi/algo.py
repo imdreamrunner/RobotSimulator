@@ -8,13 +8,13 @@ from path_finder import find_path
 from util import *
 
 
-LOCAL = True
+LOCAL = False
 DISPLAY_MAP = True
 PI_IP = "192.168.14.144"
 PI_PORT = 8080
 
 TARGET_COVERAGE = 100   # in percentage
-TIME_LIMIT = 100        # in seconds
+TIME_LIMIT = 1000       # in seconds
 
 WIDTH = 20
 HEIGHT = 15
