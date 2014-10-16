@@ -143,7 +143,7 @@ def update_map(sensors):
     while s_tmp > 10:
         g_tmp += 1
         s_tmp -= 10
-        if g_tmp > 1:
+        if g_tmp > 2:
             break
         else:
             x, y = get_grid(robotX, robotY, right(robotD), g_tmp)
@@ -151,7 +151,6 @@ def update_map(sensors):
     if g_tmp < 3:
         x, y = get_grid(robotX, robotY, right(robotD), g_tmp + 1)
         set_world(x, y, 2)
-
 
 def get_grid(x, y, d, dd):
     if d == 0:
