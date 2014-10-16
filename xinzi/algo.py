@@ -8,8 +8,8 @@ from path_finder import find_path
 from util import *
 
 
-LOCAL = False
-DISPLAY_MAP = True
+LOCAL = True
+DISPLAY_MAP = False
 PI_IP = "192.168.14.144"
 PI_PORT = 8080
 
@@ -73,7 +73,7 @@ def update_map(sensors):
     # Front Mid Temp
     s_tmp = min(s_front_left, s_front_right)
     g_tmp = 1
-    while s_tmp > 10:
+    while s_tmp > 14:
         x, y = get_grid(robotX, robotY, robotD, g_tmp + 1)
         set_world(x, y, 1)
         g_tmp += 1
@@ -90,7 +90,7 @@ def update_map(sensors):
     s_tmp = s_front_left
     g_tmp = 1
     r_x, r_y = get_grid(robotX, robotY, left(robotD), 1)
-    while s_tmp > 10:
+    while s_tmp > 14:
         x, y = get_grid(r_x, r_y, robotD, g_tmp + 1)
         set_world(x, y, 1)
         g_tmp += 1
@@ -107,7 +107,7 @@ def update_map(sensors):
     s_tmp = s_front_right
     g_tmp = 1
     r_x, r_y = get_grid(robotX, robotY, right(robotD), 1)
-    while s_tmp > 10:
+    while s_tmp > 14:
         x, y = get_grid(r_x, r_y, robotD, g_tmp + 1)
         set_world(x, y, 1)
         g_tmp += 1
@@ -123,7 +123,7 @@ def update_map(sensors):
     # Left
     s_tmp = s_left
     g_tmp = 1
-    while s_tmp > 5:
+    while s_tmp > 10:
         x, y = get_grid(robotX, robotY, left(robotD), g_tmp + 1)
         set_world(x, y, 1)
         g_tmp += 1
@@ -136,7 +136,7 @@ def update_map(sensors):
     # Right
     s_tmp = s_right
     g_tmp = 1
-    while s_tmp > 5:
+    while s_tmp > 10:
         x, y = get_grid(robotX, robotY, right(robotD), g_tmp + 1)
         set_world(x, y, 1)
         g_tmp += 1
@@ -160,8 +160,27 @@ def get_grid(x, y, d, dd):
     return x, y
 
 
+kellyWithFront = False
+
+
+def check_kelly(sensors):
+    global kellyWithFront
+    if kellyWithFront:
+        return False
+    s_front_left = sensors[1]
+    s_front_right = sensors[2]
+    if s_front_left < 15 and s_front_left < 15:
+        kellyWithFront = True
+        robot.send({
+            "event": "ACTION",
+            "action": "KELLY"
+        })
+        return True
+    return False
+
+
 def robot_event_handler(res):
-    global goalPoint, path_list, explored_start_time
+    global goalPoint, path_list, explored_start_time, kellyWithFront
     event = res['event']
     if event == "EXPLORE":
         explored_start_time = time.time()
@@ -185,6 +204,10 @@ def robot_event_handler(res):
     elif event == "TASK_FINISH":
         action = None
         sensors = res['sensors']
+
+        if check_kelly(sensors):
+            return
+        kellyWithFront = False
 
         if goalPoint < 2:
             update_map(sensors)
