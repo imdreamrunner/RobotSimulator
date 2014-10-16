@@ -8,7 +8,7 @@ from path_finder import find_path
 from util import *
 
 
-LOCAL = False
+LOCAL = True
 DISPLAY_MAP = True
 PI_IP = "192.168.14.144"
 PI_PORT = 8080
@@ -73,7 +73,7 @@ def update_map(sensors):
     # Front Mid Temp
     s_tmp = min(s_front_left, s_front_right)
     g_tmp = 1
-    while s_tmp > 10:
+    while s_tmp > 14:
         x, y = get_grid(robotX, robotY, robotD, g_tmp + 1)
         set_world(x, y, 1)
         g_tmp += 1
@@ -90,7 +90,7 @@ def update_map(sensors):
     s_tmp = s_front_left
     g_tmp = 1
     r_x, r_y = get_grid(robotX, robotY, left(robotD), 1)
-    while s_tmp > 10:
+    while s_tmp > 14:
         x, y = get_grid(r_x, r_y, robotD, g_tmp + 1)
         set_world(x, y, 1)
         g_tmp += 1
@@ -107,7 +107,7 @@ def update_map(sensors):
     s_tmp = s_front_right
     g_tmp = 1
     r_x, r_y = get_grid(robotX, robotY, right(robotD), 1)
-    while s_tmp > 10:
+    while s_tmp > 14:
         x, y = get_grid(r_x, r_y, robotD, g_tmp + 1)
         set_world(x, y, 1)
         g_tmp += 1
