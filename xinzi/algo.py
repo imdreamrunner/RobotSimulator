@@ -8,8 +8,8 @@ from path_finder import find_path
 from util import *
 
 
-LOCAL = True
-DISPLAY_MAP = False
+LOCAL = False
+DISPLAY_MAP = True
 PI_IP = "192.168.14.144"
 PI_PORT = 8080
 
@@ -29,7 +29,7 @@ robotD = 0
 knownWorld = [[0 for j in range(HEIGHT)] for i in range(WIDTH)]
 # 0 for unknown, 1 for free, 2 for obstacles, 3 for likely
 
-goalPoint = 0
+goalPoint = -1
 # 0 to goal, 1 to start, 2 shortest preparation, 3 wait for start, 4 fastest run
 explored_start_time = 0.0
 path_list = []
@@ -74,13 +74,14 @@ def update_map(sensors):
     s_tmp = min(s_front_left, s_front_right)
     g_tmp = 1
     while s_tmp > 14:
-        x, y = get_grid(robotX, robotY, robotD, g_tmp + 1)
-        set_world(x, y, 1)
         g_tmp += 1
         s_tmp -= 10
-        if g_tmp > 4:
+        if g_tmp > 2:
             break
-    if g_tmp < 5:
+        else:
+            x, y = get_grid(robotX, robotY, robotD, g_tmp)
+            set_world(x, y, 1)
+    if g_tmp < 3:
         x, y = get_grid(robotX, robotY, robotD, g_tmp + 1)
         if abs(s_front_right - s_front_left) > 5:
             set_world(x, y, 3)
@@ -91,13 +92,14 @@ def update_map(sensors):
     g_tmp = 1
     r_x, r_y = get_grid(robotX, robotY, left(robotD), 1)
     while s_tmp > 14:
-        x, y = get_grid(r_x, r_y, robotD, g_tmp + 1)
-        set_world(x, y, 1)
         g_tmp += 1
         s_tmp -= 10
-        if g_tmp > 4:
+        if g_tmp > 2:
             break
-    if g_tmp < 5:
+        else:
+            x, y = get_grid(r_x, r_y, robotD, g_tmp)
+            set_world(x, y, 1)
+    if g_tmp < 3:
         x, y = get_grid(r_x, r_y, robotD, g_tmp + 1)
         if abs(s_front_right - s_front_left) > 5:
             set_world(x, y, 2)
@@ -108,13 +110,14 @@ def update_map(sensors):
     g_tmp = 1
     r_x, r_y = get_grid(robotX, robotY, right(robotD), 1)
     while s_tmp > 14:
-        x, y = get_grid(r_x, r_y, robotD, g_tmp + 1)
-        set_world(x, y, 1)
         g_tmp += 1
         s_tmp -= 10
-        if g_tmp > 4:
+        if g_tmp > 2:
             break
-    if g_tmp < 5:
+        else:
+            x, y = get_grid(r_x, r_y, robotD, g_tmp)
+            set_world(x, y, 1)
+    if g_tmp < 3:
         x, y = get_grid(r_x, r_y, robotD, g_tmp + 1)
         if abs(s_front_left - s_front_right) > 5:
             set_world(x, y, 2)
@@ -124,26 +127,28 @@ def update_map(sensors):
     s_tmp = s_left
     g_tmp = 1
     while s_tmp > 10:
-        x, y = get_grid(robotX, robotY, left(robotD), g_tmp + 1)
-        set_world(x, y, 1)
         g_tmp += 1
         s_tmp -= 10
-        if g_tmp > 4:
+        if g_tmp > 2:
             break
-    if g_tmp < 5:
+        else:
+            x, y = get_grid(robotX, robotY, left(robotD), g_tmp)
+            set_world(x, y, 1)
+    if g_tmp < 3:
         x, y = get_grid(robotX, robotY, left(robotD), g_tmp + 1)
         set_world(x, y, 2)
     # Right
     s_tmp = s_right
     g_tmp = 1
     while s_tmp > 10:
-        x, y = get_grid(robotX, robotY, right(robotD), g_tmp + 1)
-        set_world(x, y, 1)
         g_tmp += 1
         s_tmp -= 10
-        if g_tmp > 4:
+        if g_tmp > 1:
             break
-    if g_tmp < 5:
+        else:
+            x, y = get_grid(robotX, robotY, right(robotD), g_tmp)
+            set_world(x, y, 1)
+    if g_tmp < 3:
         x, y = get_grid(robotX, robotY, right(robotD), g_tmp + 1)
         set_world(x, y, 2)
 
@@ -185,6 +190,7 @@ def robot_event_handler(res):
     if event == "EXPLORE":
         explored_start_time = time.time()
         go_straight(0)
+        goalPoint = 0
     elif event == "START":
         # start fastest run
         goalPoint = 4
@@ -217,12 +223,14 @@ def robot_event_handler(res):
             print "Exploration time:", time_length, "s"
             print "Exploration coverage:", coverage, "%"
             print
+            """
             if time_length > TIME_LIMIT:
                 print "Time limited exceeded."
                 return
             if coverage > TARGET_COVERAGE:
                 print "Target coverage achieved."
                 return
+            """
         else:
             print_known_world()
         if goalPoint == 0:
@@ -337,6 +345,11 @@ while 1:
         turn_right()
     elif s == "go":
         go_straight(1)
+    elif s == "kelly":
+        robot.send({
+            "event": "ACTION",
+            "action": "KELLY"
+        })
     elif s == "explore":
         robot.send({
             "event": "EXPLORE"
