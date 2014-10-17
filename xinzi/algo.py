@@ -9,7 +9,7 @@ from util import *
 
 
 LOCAL = False
-DISPLAY_MAP = True
+DISPLAY_MAP = False
 PI_IP = "192.168.14.144"
 PI_PORT = 8080
 
