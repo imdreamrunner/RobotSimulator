@@ -7,59 +7,61 @@ MAX = 99999
 m = []
 s = []
 c = []
+queue = []
 
 
-def find_path_list(map, nx, ny, nd, tx, ty):
-    global m, s, c
-    m = map
+def find_path_list(mm, nx, ny, nd, tx, ty):
+    global m, s, c, queue
+    m = mm
     s = [[[MAX for k in range(4)] for j in range(HEIGHT)] for i in range(WIDTH)]
     c = [[[[] for k in range(4)] for j in range(HEIGHT)] for i in range(WIDTH)]
-    update_grid(tx, ty, 0, 0, 0, 0, 0)
-    update_grid(tx, ty, 1, 0, 0, 0, 0)
-    update_grid(tx, ty, 2, 0, 0, 0, 0)
-    update_grid(tx, ty, 3, 0, 0, 0, 0)
+    s[tx][ty][0] = 0
+    s[tx][ty][1] = 0
+    s[tx][ty][2] = 0
+    s[tx][ty][3] = 0
+    queue = [[tx, ty, 0], [tx, ty, 1], [tx, ty, 2], [tx, ty, 3]]
+    while len(queue) > 0:
+        cx, cy, cd = queue.pop()
+        val = s[cx][cy][cd]
+        for d in range(4):
+            if abs(cd - d) == 1 or abs(nd - d) == 3:
+                update_grid(cx, cy, d, val + turn_step, cx, cy, cd)
+        if cd == 0:
+            update_grid(cx - 1, cy, cd, val + 1, cx, cy, cd)
+        elif cd == 1:
+            update_grid(cx, cy - 1, cd, val + 1, cx, cy, cd)
+        elif cd == 2:
+            update_grid(cx + 1, cy, cd, val + 1, cx, cy, cd)
+        elif cd == 3:
+            update_grid(cx, cy + 1, cd, val + 1, cx, cy, cd)
     path_list = []
     while not (nx == tx and ny == ty):
-        next = c[nx][ny][nd]
-        if next[2] == nd:
+        next_step = c[nx][ny][nd]
+        if next_step[2] == nd:
             path_list.append("straight")
-        elif next[2] == (nd + 1) % 4:
+        elif next_step[2] == (nd + 1) % 4:
             path_list.append("right")
         else:
             path_list.append("left")
-        nx = next[0]
-        ny = next[1]
-        nd = next[2]
+        nx, ny, nd = next_step
         # print nx, ny, nd
+    print path_list
     return path_list
 
 
 def update_grid(nx, ny, nd, val, fx, fy, fd):
+    global queue
     if not can_go(nx, ny):  # Block by obstacle
-        return MAX
+        return False
     cur = s[nx][ny][nd]
     if cur <= val:
-        return cur
+        return False
     # print "Updating", nx, ny, nd, val
     s[nx][ny][nd] = val
     c[nx][ny][nd] = [fx, fy, fd]
-    for d in range(4):
-        if abs(nd - d) == 2:
-            update_grid(nx, ny, d, val + turn_step * 2, nx, ny, nd)
-        if abs(nd - d) == 1 or abs(nd - d) == 3:
-            update_grid(nx, ny, d, val + turn_step, nx, ny, nd)
-    if nd == 0:
-        if nx > 0:
-            update_grid(nx - 1, ny, nd, val + 1, nx, ny, nd)
-    elif nd == 1:
-        if ny > 0:
-            update_grid(nx, ny - 1, nd, val + 1, nx, ny, nd)
-    elif nd == 2:
-        if nx < WIDTH - 1:
-            update_grid(nx + 1, ny, nd, val + 1, nx, ny, nd)
-    elif nd == 3:
-        if ny < HEIGHT - 1:
-            update_grid(nx, ny + 1, nd, val + 1, nx, ny, nd)
+    if not [nx, ny, nd] in queue:
+        queue.append([nx, ny, nd])
+    return True
 
 
 def can_go(x, y):
