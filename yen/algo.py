@@ -2,8 +2,9 @@ import os
 import sys
 from conn import Robot
 from path_finder_yen import explore
+from shortest_path import shortest_path
 
-DISPLAY_MAP = False
+DISPLAY_MAP = True
 WIDTH = 20
 HEIGHT = 15
 
@@ -127,7 +128,11 @@ def handle_task_finish(res):
         just_finish_kelly = True
     else:
         just_finish_kelly = False
-        action = explore(knownWorld, robotX, robotY, robotD, goalX, goalY, challenge)
+
+        if challenge == CHALLENGE_RUN_REACH_GOAL:
+            action = shortest_path(knownWorld, robotX, robotY, robotD, goalX, goalY, challenge)
+        else:
+            action = explore(knownWorld, robotX, robotY, robotD, goalX, goalY, challenge)
         if action == 0:
             go_straight(1)
         elif action == 3:
@@ -246,8 +251,8 @@ def right(d):
     return (d+1) % 4
 
 
-robot = Robot("192.168.14.144", 8080, robot_event_handler)
-# robot = Robot("127.0.0.1", 8080, robot_event_handler)
+#robot = Robot("192.168.14.144", 8080, robot_event_handler)
+robot = Robot("127.0.0.1", 8080, robot_event_handler)
 mapDisplay = Robot("127.0.0.1", 10200, robot_event_handler)
 
 robot.start()
