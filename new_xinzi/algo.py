@@ -8,7 +8,7 @@ from path_finder import find_path
 from util import *
 
 
-LOCAL = True
+LOCAL = False
 DISPLAY_MAP = False
 PI_IP = "192.168.14.144"
 PI_PORT = 8080
@@ -156,12 +156,14 @@ kellyWithFront = False
 def check_kelly(sensors):
     global kellyWithFront, robotX, robotY
     if kellyWithFront:
+        """
         if robotX >= WIDTH - 3 and robotY >= HEIGHT - 3:
             robotX = WIDTH - 2
             robotY = HEIGHT - 2
         if robotX <= 2 and robotY <= 2:
             robotX = 1
             robotY = 1
+        """
         return False
     s_front_left = sensors[1]
     s_front_right = sensors[2]
