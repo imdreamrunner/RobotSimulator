@@ -144,6 +144,10 @@ def get_grid(x, y, d, dd):
     return x, y
 
 
+def align_corner():
+    return False
+
+
 kellyWithFront = False
 
 
@@ -153,6 +157,9 @@ def check_kelly(sensors):
         if robotX >= WIDTH - 3 and robotY >= HEIGHT - 3:
             robotX = WIDTH - 2
             robotY = HEIGHT - 2
+        if robotX <= 2 and robotY <= 2:
+            robotX = 1
+            robotY = 2
         return False
     s_front_left = sensors[1]
     s_front_right = sensors[2]
@@ -192,6 +199,9 @@ def robot_event_handler(res):
     elif event == "TASK_FINISH":
         action = None
         sensors = res['sensors']
+
+        if align_corner():
+            return
 
         if check_kelly(sensors):
             return
