@@ -1,10 +1,10 @@
 import os
 import sys
 from conn import Robot
-from path_finder_yen import explore
-from shortest_path import shortest_path
+from exploration_lean_wall import explore
+from shortest_path_heuristic import shortest_path
 
-DISPLAY_MAP = True
+DISPLAY_MAP = False
 WIDTH = 20
 HEIGHT = 15
 
@@ -18,12 +18,14 @@ CHALLENGE_EXPLORE_REACH_START = 1
 CHALLENGE_RUN_REACH_GOAL = 2
 CHALLENGE_RUN_FINISH = 3
 
+knownWorld = [[0] * WIDTH for i in range(HEIGHT)]
 robotX, robotY, robotD = 7, 9, 1
 goalX, goalY = 13, 18
 challenge = CHALLENGE_EXPLORE_REACH_GOAL
 just_finish_kelly = False
-
-knownWorld = [[0] * WIDTH for i in range(HEIGHT)]
+reserve_turn_left = False
+reserve_turn_right = False
+go_straight_count = 0
 
 
 def robot_event_handler(res):
@@ -42,6 +44,12 @@ def robot_event_handler(res):
 
 def is_outside(x, y):
     return x < 0 or x >= HEIGHT or y < 0 or y >= WIDTH
+
+
+def is_obstacle(known_world, x, y):
+    if is_outside(x, y):
+        return True
+    return known_world[x][y] == 2
 
 
 def update_known_cell(x, y, val):
@@ -100,8 +108,16 @@ def face_wall(sensors):
     # return fw >= 2
 
 
+def can_callibrate_right():
+    #When right have obstacle and go straight 3 steps
+    cell1_x, cell1_y = robotX + 2*sx[robotD] + DX[robotD], robotY + 2*sy[robotD] + DY[robotD]
+    cell2_x, cell2_y = robotX + 2*sx[robotD] - DX[robotD], robotY + 2*sy[robotD] - DY[robotD]
+    return go_straight_count >= 3 and is_obstacle(knownWorld, cell1_x, cell1_y) and is_obstacle(knownWorld, cell2_x, cell2_y)
+
+
 def handle_task_finish(res):
-    global robotX,  robotY, goalX, goalY, challenge, new_challenge, just_finish_kelly
+    global robotX,  robotY, goalX, goalY, challenge, just_finish_kelly, reserve_turn_left, go_straight_count
+
     print "Robot position: %d %d %d " % (robotX, robotY, robotD)
     sensors = res['sensors']
     print_known_world_console()
@@ -123,19 +139,36 @@ def handle_task_finish(res):
 
     #check if face wall, callibrate
     if (not just_finish_kelly) and face_wall(sensors):
-        print robotX, robotY, robotD
+        print "kelly"
         kelly()
-        just_finish_kelly = True
-    else:
-        just_finish_kelly = False
+        return
 
-        if challenge == CHALLENGE_RUN_REACH_GOAL:
-            action = shortest_path(knownWorld, robotX, robotY, robotD, goalX, goalY, challenge)
-        else:
-            action = explore(knownWorld, robotX, robotY, robotD, goalX, goalY, challenge)
-        if action == 0:
-            go_straight(1)
-        elif action == 3:
+    #check if any specific action should be perform
+    if reserve_turn_left:
+        turn_left()
+        reserve_turn_left = False
+        return
+
+    #check if can callibrate_right
+    if can_callibrate_right():
+        turn_right()
+        go_straight_count = 0
+        reserve_turn_left = True
+        return
+
+    just_finish_kelly = False
+
+    #Use algorithm to find the appropriate action
+    if challenge == CHALLENGE_RUN_REACH_GOAL:
+        action = shortest_path(knownWorld, robotX, robotY, robotD, goalX, goalY, challenge)
+    else:
+        action = explore(knownWorld, robotX, robotY, robotD, goalX, goalY, challenge)
+    if action == 0:
+        go_straight(1)
+        go_straight_count += 1
+    else:
+        go_straight_count = 0
+        if action == 3:
             turn_left()
         else:
             turn_right()
@@ -237,10 +270,12 @@ def turn_right():
 
 
 def kelly():
+    global just_finish_kelly
     robot.send({
         "event": "ACTION",
         "action": "KELLY"
     })
+    just_finish_kelly = True
 
 
 def left(d):
