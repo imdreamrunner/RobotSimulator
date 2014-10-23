@@ -8,7 +8,7 @@ from path_finder import find_path
 from util import *
 
 
-LOCAL = True
+LOCAL = False
 DISPLAY_MAP = False
 PI_IP = "192.168.14.144"
 PI_PORT = 8080

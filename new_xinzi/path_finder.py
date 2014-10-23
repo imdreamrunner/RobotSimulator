@@ -6,25 +6,42 @@ m = []
 s = []
 
 
-godMode = 0
+def update_grid(nx, ny, val):
+    global s
+    if not can_go(nx, ny):  # Block by obstacle
+        return False
+    cur = s[nx][ny]
+    if cur <= val:
+        return False
+    # print "Updating", nx, ny, nd, val
+    s[nx][ny] = val
+    return True
 
 
-def find_path(map, nx, ny, nd, tx, ty):
-    global m, s, godMode
-    if godMode > 0:
-        print "ALGO IS IN GOD MODE " + str(godMode)
-    m = map
+def find_path(mm, nx, ny, nd, tx, ty):
+    global m, s
+    m = mm
     s = [[MAX for j in range(HEIGHT)] for i in range(WIDTH)]
-    update_grid(tx, ty, 0)
+    s[tx][ty] = 0
+    queue = [[tx, ty]]
+    while len(queue) > 0:
+        cx, cy = queue.pop()
+        if update_grid(cx - 1, cy, s[cx][cy] + 1):
+            queue.append([cx - 1, cy])
+        if update_grid(cx + 1, cy, s[cx][cy] + 1):
+            queue.append([cx + 1, cy])
+        if update_grid(cx, cy - 1, s[cx][cy] + 1):
+            queue.append([cx, cy - 1])
+        if update_grid(cx, cy + 1, s[cx][cy] + 1):
+            queue.append([cx, cy + 1])
     r = s[nx + 1][ny]
     l = s[nx - 1][ny]
     d = s[nx][ny + 1]
     u = s[nx][ny - 1]
-    # print r, l, d, u
+    #print "shortest", r, l, d, u
     m = min(r, l, d, u)
     if m == MAX:
         print "Magic happens!"
-        godMode += 1
         return "right"
     # straight has priority
     if nd == 0 and r == m:
@@ -46,30 +63,13 @@ def find_path(map, nx, ny, nd, tx, ty):
     return "right"
 
 
-def update_grid(nx, ny, val):
-    if not can_go(nx, ny):  # Block by obstacle
-        return MAX
-    cur = s[nx][ny]
-    if cur <= val:
-        return cur
-    # print "Updating", nx, ny, nd, val
-    s[nx][ny] = val
-    update_grid(nx + 1, ny, val + 1)
-    update_grid(nx - 1, ny, val + 1)
-    update_grid(nx, ny + 1, val + 1)
-    update_grid(nx, ny - 1, val + 1)
-
-
 def can_go(x, y):
-    global godMode
     for i in range(x-1, x + 2):
         for j in range(y - 1, y + 2):
             if i < 0 or i > WIDTH - 1:
                 return False
             if j < 0 or j > HEIGHT - 1:
                 return False
-            if godMode == 0 and m[i][j] == 2:
-                return False
-            if godMode == 1 and m[i][j] >= 2:
+            if m[i][j] > 1:
                 return False
     return True
