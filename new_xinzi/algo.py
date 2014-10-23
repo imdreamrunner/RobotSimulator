@@ -99,7 +99,6 @@ def update_map(sensors):
             x, y = get_grid(r_x, r_y, robotD, g_tmp)
             set_world(x, y, 1)
     if g_tmp < 3:
-        print "here///"
         x, y = get_grid(r_x, r_y, robotD, g_tmp + 1)
         set_world(x, y, 2)
     # Left
@@ -131,6 +130,7 @@ def update_map(sensors):
         x, y = get_grid(robotX, robotY, right(robotD), g_tmp + 1)
         set_world(x, y, 2)
 
+
 def get_grid(x, y, d, dd):
     if d == 0:
         x += dd
@@ -143,16 +143,29 @@ def get_grid(x, y, d, dd):
     return x, y
 
 
+lastKellyLocation = [robotX, robotY]
+
+
+def align_corner():
+    return False
+
+
 kellyWithFront = False
 
 
 def check_kelly(sensors):
-    global kellyWithFront
+    global kellyWithFront, robotX, robotY
     if kellyWithFront:
+        if robotX >= WIDTH - 3 and robotY >= HEIGHT - 3:
+            robotX = WIDTH - 2
+            robotY = HEIGHT - 2
+        if robotX <= 2 and robotY <= 2:
+            robotX = 1
+            robotY = 1
         return False
     s_front_left = sensors[1]
     s_front_right = sensors[2]
-    if s_front_left < 15 and s_front_left < 15:
+    if s_front_left < 10 and s_front_right < 10:
         kellyWithFront = True
         robot.send({
             "event": "ACTION",
@@ -188,6 +201,9 @@ def robot_event_handler(res):
     elif event == "TASK_FINISH":
         action = None
         sensors = res['sensors']
+
+        if align_corner():
+            return
 
         if check_kelly(sensors):
             return

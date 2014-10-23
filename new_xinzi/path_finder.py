@@ -27,13 +27,17 @@ def find_path(mm, nx, ny, nd, tx, ty):
     while len(queue) > 0:
         cx, cy = queue.pop()
         if update_grid(cx - 1, cy, s[cx][cy] + 1):
-            queue.append([cx - 1, cy])
+            if not [cx - 1, cy] in queue:
+                queue.append([cx - 1, cy])
         if update_grid(cx + 1, cy, s[cx][cy] + 1):
-            queue.append([cx + 1, cy])
+            if not [cx + 1, cy] in queue:
+                queue.append([cx + 1, cy])
         if update_grid(cx, cy - 1, s[cx][cy] + 1):
-            queue.append([cx, cy - 1])
+            if not [cx, cy - 1] in queue:
+                queue.append([cx, cy - 1])
         if update_grid(cx, cy + 1, s[cx][cy] + 1):
-            queue.append([cx, cy + 1])
+            if not [cx, cy + 1] in queue:
+                queue.append([cx, cy + 1])
     r = s[nx + 1][ny]
     l = s[nx - 1][ny]
     d = s[nx][ny + 1]
