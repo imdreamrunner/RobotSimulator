@@ -8,7 +8,7 @@ from path_finder import find_path
 from util import *
 
 
-LOCAL = True
+LOCAL = False
 DISPLAY_MAP = False
 PI_IP = "192.168.14.144"
 PI_PORT = 8080
@@ -131,6 +131,7 @@ def update_map(sensors):
         x, y = get_grid(robotX, robotY, right(robotD), g_tmp + 1)
         set_world(x, y, 2)
 
+
 def get_grid(x, y, d, dd):
     if d == 0:
         x += dd
@@ -147,8 +148,11 @@ kellyWithFront = False
 
 
 def check_kelly(sensors):
-    global kellyWithFront
+    global kellyWithFront, robotX, robotY
     if kellyWithFront:
+        if robotX >= WIDTH - 3 and robotY >= HEIGHT - 3:
+            robotX = WIDTH - 2
+            robotY = HEIGHT - 2
         return False
     s_front_left = sensors[1]
     s_front_right = sensors[2]
