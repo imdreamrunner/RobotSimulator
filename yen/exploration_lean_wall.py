@@ -13,6 +13,7 @@ DX = [-1, 0, 1, 0]
 DY = [0, 1, 0, -1]
 
 state = STATE_PREFER_GO
+visited = [[[[False] * 4] for j in range(WIDTH)] for i in range(HEIGHT)]
 
 
 def is_outside(x, y):
@@ -47,11 +48,15 @@ def can_not_standable(known_world, x, y):
     return False
 
 
-def explore(known_world, x, y, d, goalX, goalY, challenge):
+def explore_lean_wall(known_world, x, y, d, goalX, goalY, visited, challenge):
     global state
 
     if challenge == CHALLENGE_EXPLORE_REACH_GOAL:
         if d == 2:
+            state = STATE_PREFER_GO
+
+    if challenge == CHALLENGE_EXPLORE_REACH_START:
+        if d == 0:
             state = STATE_PREFER_GO
 
     if state == STATE_PREFER_GO:

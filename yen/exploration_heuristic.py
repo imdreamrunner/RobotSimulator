@@ -8,14 +8,16 @@ DY = [0, 1, 0, -1]
 W = [0, 1, 2, 0]
 
 
-def explore(known_world, x, y, d, goalX, goalY, challenge):
-    update_heuristic_all(known_world, goalX, goalY)
+def print_heuristic_matrix():
+    for i in range(HEIGHT):
+        for j in range(WIDTH):
+            print "%4d" % (h[i][j]),
+        print
+    print
 
-    # for i in range(HEIGHT):
-    #     for j in range(WIDTH):
-    #         print "%4d" % (h[i][j]),
-    #     print
-    # print
+
+def explore_heuristic(known_world, x, y, d, goalX, goalY, visited, challenge):
+    update_heuristic_all(known_world, goalX, goalY)
 
     min_dis = MAXC
     ans = 1
@@ -24,10 +26,11 @@ def explore(known_world, x, y, d, goalX, goalY, challenge):
         newx, newy, newd = x+DX[(d+k) % 4], y+DY[(d+k) % 4], (d+k) % 4
         if k != 0 or is_standable(known_world, newx, newy):
             if not is_obstacle(known_world, newx, newy):
-                if h[newx][newy] + W[k] < min_dis:
+                if (visited[newx][newy][newd] < 3) and (h[newx][newy] + W[k] < min_dis):
                     min_dis = h[newx][newy] + W[k]
                     ans = k
     return ans
+
 
 
 def is_outside(x, y):
