@@ -8,7 +8,7 @@ DY = [0, 1, 0, -1]
 W = [0, 1, 2, 0]
 
 
-def explore(known_world, x, y, d, goalX, goalY):
+def explore(known_world, x, y, d, goalX, goalY, challenge):
     update_heuristic_all(known_world, goalX, goalY)
 
     # for i in range(HEIGHT):

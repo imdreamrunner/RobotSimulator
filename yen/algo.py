@@ -79,11 +79,11 @@ def update_known_world(sensors):
     s_left = sensors[3]
     s_right = sensors[4]
 
-    if s_front_left > 10 and s_front_right > 10:
-        # update_known_cell_from_sensor(robotX, robotY, robotD, min(s_front_left, s_front_right))
-        update_known_cell(robotX + DX[robotD], robotY + DY[robotD], 1)
-        update_known_cell(robotX + DX[robotD]*2, robotY + DY[robotD]*2, 1)
-
+    # if s_front_left > 10 and s_front_right > 10:
+    #     # update_known_cell_from_sensor(robotX, robotY, robotD, min(s_front_left, s_front_right))
+    #     update_known_cell(robotX + DX[robotD], robotY + DY[robotD], 1)
+    #     update_known_cell(robotX + DX[robotD]*2, robotY + DY[robotD]*2, 1)
+    update_known_cell_from_sensor(robotX, robotY, robotD, s_front_mid)
     update_known_cell_from_sensor(robotX, robotY, right(robotD), s_right)
     update_known_cell_from_sensor(robotX, robotY, left(robotD), s_left)
     update_known_cell_from_sensor(robotX-sx[robotD], robotY-sy[robotD], robotD, s_front_left)
@@ -91,9 +91,12 @@ def update_known_world(sensors):
 
 
 def face_wall(sensors):
+    s_front_mid = sensors[0]
     s_front_left = sensors[1]
     s_front_right = sensors[2]
     return s_front_left < 10 and s_front_right < 10
+    # fw = int(s_front_mid < 10) + int(s_front_left < 10) + int(s_front_right < 10)
+    # return fw >= 2
 
 
 def handle_task_finish(res):
@@ -119,6 +122,7 @@ def handle_task_finish(res):
 
     #check if face wall, callibrate
     if (not just_finish_kelly) and face_wall(sensors):
+        print robotX, robotY, robotD
         kelly()
         just_finish_kelly = True
     else:
