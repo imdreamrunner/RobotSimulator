@@ -8,7 +8,7 @@ from path_finder import find_path
 from util import *
 
 
-LOCAL = False
+LOCAL = True
 DISPLAY_MAP = False
 PI_IP = "192.168.14.144"
 PI_PORT = 8080
@@ -99,6 +99,7 @@ def update_map(sensors):
             x, y = get_grid(r_x, r_y, robotD, g_tmp)
             set_world(x, y, 1)
     if g_tmp < 3:
+        print "here///"
         x, y = get_grid(r_x, r_y, robotD, g_tmp + 1)
         set_world(x, y, 2)
     # Left
