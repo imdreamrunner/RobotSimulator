@@ -348,8 +348,8 @@ def right(d):
     return (d+1) % 4
 
 
-robot = Robot("192.168.14.144", 8080, robot_event_handler)
-#robot = Robot("127.0.0.1", 8080, robot_event_handler)
+#robot = Robot("192.168.14.144", 8080, robot_event_handler)
+robot = Robot("127.0.0.1", 8080, robot_event_handler)
 mapDisplay = Robot("127.0.0.1", 10200, robot_event_handler)
 
 robot.start()
