@@ -51,6 +51,7 @@ def robot_event_handler(res):
         print "TASK FINISH"
         handle_task_finish(res)
         send_known_world()
+        print_known_world()
 
 
 def reset_visited():
@@ -112,11 +113,12 @@ def update_known_world(sensors):
     update_known_cell_from_sensor(robotX+SX[robotD], robotY+SY[robotD], robotD, s_front_right)
 
 
-def face_wall(sensors):
-    s_front_mid = sensors[0]
-    s_front_left = sensors[1]
-    s_front_right = sensors[2]
-    return s_front_left < 10 and s_front_right < 10
+def face_wall(knownWorld):
+
+    cell1_x, cell1_y = robotX + SX[robotD] + DX[robotD], robotY + SY[robotD] + DY[robotD]
+    cell2_x, cell2_y = robotX - SX[robotD] + DX[robotD], robotY - SY[robotD] + DY[robotD]
+
+    return is_obstacle(knownWorld, cell1_x, cell1_y) and is_obstacle(knownWorld, cell2_x, cell2_y)
 
 
 def need_calibrate_left_right():
@@ -141,8 +143,8 @@ def can_calibrate_left():
     return is_obstacle(knownWorld, cell1_x, cell1_y) and is_obstacle(knownWorld, cell2_x, cell2_y)
 
 
-def can_calibrate_front(sensors):
-    return face_wall(sensors) and (not just_finish_kelly_front)
+def can_calibrate_front(knownWorld):
+    return face_wall(knownWorld) and (not just_finish_kelly_front)
 
 
 def handle_task_finish(res):
@@ -169,7 +171,7 @@ def handle_task_finish(res):
             return
 
     #check if can calibrate front
-    if can_calibrate_front(sensors):
+    if can_calibrate_front(knownWorld):
         print "calibrate front"
         kelly()
         just_finish_kelly_front = True
