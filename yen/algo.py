@@ -29,14 +29,11 @@ visited = [[[0] * 4 for j in range(WIDTH)] for i in range(HEIGHT)]
 robotX, robotY, robotD = 7, 9, 1
 goalX, goalY = 13, 18
 challenge = CHALLENGE_EXPLORE_REACH_GOAL
-just_finish_kelly_front = False
-just_finish_kelly_lr = False
-reserve_turn_left = False
-reserve_turn_right = False
 #Count from last calibrate
 go_straight_count = 0
 move_count = 0
 infinite_loop = False
+just_finish_kelly_front = False
 
 
 def robot_event_handler(res):
@@ -51,7 +48,7 @@ def robot_event_handler(res):
         print "TASK FINISH"
         handle_task_finish(res)
         send_known_world()
-        print_known_world()
+        # print_known_world()
 
 
 def reset_visited():
@@ -77,15 +74,17 @@ def update_known_cell(x, y, val):
 
 
 def update_known_cell_from_sensor(x, y, direction, distance):
-    if distance > 50:
-        distance = 50
+    if distance > 32:
+        distance = 32
 
-    if distance > 45:
+    if distance > 30:
         no_obstacle = True
     else:
         no_obstacle = False
 
-    while distance > -10:
+    x, y = get_grid(x, y, direction, 1)
+
+    while distance > 2:
         update_known_cell(x, y, 1)
         x, y = get_grid(x, y, direction, 1)
         distance -= 10
@@ -113,45 +112,39 @@ def update_known_world(sensors):
     update_known_cell_from_sensor(robotX+SX[robotD], robotY+SY[robotD], robotD, s_front_right)
 
 
-def face_wall(knownWorld):
-
-    cell1_x, cell1_y = robotX + SX[robotD] + DX[robotD], robotY + SY[robotD] + DY[robotD]
-    cell2_x, cell2_y = robotX - SX[robotD] + DX[robotD], robotY - SY[robotD] + DY[robotD]
-
+def face_wall(sensors):
+    cell1_x, cell1_y = robotX + SX[robotD] + 2*DX[robotD], robotY + SY[robotD] + 2*DY[robotD]
+    cell2_x, cell2_y = robotX - SX[robotD] + 2*DX[robotD], robotY - SY[robotD] + 2*DY[robotD]
     return is_obstacle(knownWorld, cell1_x, cell1_y) and is_obstacle(knownWorld, cell2_x, cell2_y)
 
 
 def need_calibrate_left_right():
-    if just_finish_kelly_lr:
-        return False
     return just_finish_kelly_front or go_straight_count >= 3 or move_count >= 6
 
 
 def can_calibrate_right():
-    if not need_calibrate_left_right():
-        return False
     cell1_x, cell1_y = robotX + 2*SX[robotD] + DX[robotD], robotY + 2*SY[robotD] + DY[robotD]
     cell2_x, cell2_y = robotX + 2*SX[robotD] - DX[robotD], robotY + 2*SY[robotD] - DY[robotD]
     return is_obstacle(knownWorld, cell1_x, cell1_y) and is_obstacle(knownWorld, cell2_x, cell2_y)
 
 
 def can_calibrate_left():
-    if not need_calibrate_left_right():
-        return False
     cell1_x, cell1_y = robotX - 2*SX[robotD] + DX[robotD], robotY - 2*SY[robotD] + DY[robotD]
     cell2_x, cell2_y = robotX - 2*SX[robotD] - DX[robotD], robotY - 2*SY[robotD] - DY[robotD]
     return is_obstacle(knownWorld, cell1_x, cell1_y) and is_obstacle(knownWorld, cell2_x, cell2_y)
 
 
-def can_calibrate_front(knownWorld):
-    return face_wall(knownWorld) and (not just_finish_kelly_front)
+def can_calibrate_front(sensors):
+    return face_wall(sensors)
 
 
 def handle_task_finish(res):
-    global goalX, goalY, challenge, just_finish_kelly_front, just_finish_kelly_lr,  reserve_turn_left, reserve_turn_right, go_straight_count, move_count, infinite_loop
+    global goalX, goalY, challenge, just_finish_kelly_front, go_straight_count, move_count, infinite_loop
 
     print "Robot position: %d %d %d " % (robotX, robotY, robotD)
     sensors = res['sensors']
+    print "Sensors: ", sensors[0], sensors[1], sensors[2], sensors[3], sensors[4]
+
     # print_known_world_console()
     update_known_world(sensors)
 
@@ -171,43 +164,29 @@ def handle_task_finish(res):
             return
 
     #check if can calibrate front
-    if can_calibrate_front(knownWorld):
+    if (not just_finish_kelly_front) and can_calibrate_front(sensors):
         print "calibrate front"
         kelly()
         just_finish_kelly_front = True
         return
-
-    #check if any specific action should be perform
-    if reserve_turn_left:
-        print "reserve turn left"
-        turn_left()
-        reserve_turn_left = False
-        return
-
-    if reserve_turn_right:
-        print "reserve turn right"
-        turn_right()
-        reserve_turn_right = False
-        return
+    else:
+        just_finish_kelly_front = False
 
     #check if can calibrate_right
-    if can_calibrate_right():
+    if can_calibrate_right() and need_calibrate_left_right():
         print "calibrate right"
         turn_right()
-        reserve_turn_left = True
-        just_finish_kelly_lr = True
+        kelly()
+        turn_left()
         return
 
     #check if can calibrate_left
-    if can_calibrate_left():
+    if can_calibrate_left() and need_calibrate_left_right():
         print "calibrate left"
         turn_left()
-        reserve_turn_right = True
-        just_finish_kelly_lr = True
+        kelly()
+        turn_right()
         return
-
-    just_finish_kelly_front = False
-    just_finish_kelly_lr = False
 
     #Use algorithm to find the appropriate action
     print "find action using algorithm"
@@ -231,7 +210,6 @@ def handle_task_finish(res):
             turn_left()
         else:
             turn_right()
-
     visited[robotX][robotY][robotD] += 1
 
 
@@ -348,7 +326,7 @@ def right(d):
     return (d+1) % 4
 
 
-#robot = Robot("192.168.14.144", 8080, robot_event_handler)
+# robot = Robot("192.168.14.144", 8080, robot_event_handler)
 robot = Robot("127.0.0.1", 8080, robot_event_handler)
 mapDisplay = Robot("127.0.0.1", 10200, robot_event_handler)
 

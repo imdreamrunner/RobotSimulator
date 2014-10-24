@@ -9,6 +9,10 @@ CHALLENGE_RUN_FINISH = 3
 STATE_PREFER_GO = 0
 STATE_PREFER_RIGHT = 1
 
+GO_STRAIGHT = 0
+TURN_RIGHT = 1
+TURN_LEFT = 3
+
 DX = [-1, 0, 1, 0]
 DY = [0, 1, 0, -1]
 
@@ -62,22 +66,22 @@ def explore_lean_wall(known_world, x, y, d, goalX, goalY, visited, challenge):
     if state == STATE_PREFER_GO:
         if is_standable(known_world, x + DX[d], y + DY[d]):
             state = STATE_PREFER_RIGHT
-            return 0
+            return GO_STRAIGHT
         else:
             state = STATE_PREFER_GO
-            return 3
+            return TURN_LEFT
     else:
         # state = STATE_PREFER_RIGHT
         if can_not_standable(known_world, x + DX[right(d)], y + DY[right(d)]):
             if is_standable(known_world, x + DX[d], y + DY[d]):
                 state = STATE_PREFER_RIGHT
-                return 0
+                return GO_STRAIGHT
             else:
                 state = STATE_PREFER_GO
-                return 3
+                return TURN_LEFT
         else:
             state = STATE_PREFER_GO
-            return 2
+            return TURN_RIGHT
 
 
 def left(d):

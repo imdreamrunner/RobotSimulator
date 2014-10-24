@@ -32,7 +32,6 @@ def explore_heuristic(known_world, x, y, d, goalX, goalY, visited, challenge):
     return ans
 
 
-
 def is_outside(x, y):
     return x < 0 or x >= HEIGHT or y < 0 or y >= WIDTH
 
