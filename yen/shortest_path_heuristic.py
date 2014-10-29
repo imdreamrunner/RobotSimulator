@@ -1,10 +1,7 @@
-WIDTH = 20
-HEIGHT = 15
+from utils import *
 MAXC = 100
 
 h = [[0 for j in range(WIDTH)] for i in range(HEIGHT)]
-DX = [-1, 0, 1, 0]
-DY = [0, 1, 0, -1]
 W = [0, 1, 2, 0]
 
 
@@ -16,55 +13,39 @@ def print_heuristic_matrix():
     print
 
 
-def shortest_path(known_world, x, y, d, goalX, goalY, visited, challenge):
-    update_heuristic_all(known_world, goalX, goalY)
+def shortest_path(arena, robot, goalX, goalY, visited, challenge):
+    update_heuristic_all(arena, goalX, goalY)
 
     min_dis = MAXC
     ans = 1
 
     for k in range(4):
-        newx, newy, newd = x+DX[(d+k) % 4], y+DY[(d+k) % 4], (d+k) % 4
-        if k != 0 or is_standable(known_world, newx, newy):
-            if not is_obstacle(known_world, newx, newy):
+        newx, newy, newd = robot.x+DX[(robot.d+k) % 4], robot.y+DY[(robot.d+k) % 4], (robot.d+k) % 4
+        if k != 0 or arena.is_standable(newx, newy):
+            if arena.is_standable(newx, newy):
                 if (visited[newx][newy][newd] < 3) and (h[newx][newy] + W[k] < min_dis):
                     min_dis = h[newx][newy] + W[k]
                     ans = k
-    return ans
+
+    if ans == GO_STRAIGHT:
+        x, y, d = robot.x, robot.y, robot.d
+        unit = 1
+        for i in range(1, 6):
+            newx, newy, newd = x + i * DX[d], y + i * DY[d], d
+            if arena.is_outside(newx, newy) or h[newx][newy] > h[x][y]:
+                break
+            unit = i
+            x, y, d = newx, newy, newd
+        return [GO_STRAIGHT, unit]
+
+    else:
+        return [ans, 1]
 
 
-def is_outside(x, y):
-    return x < 0 or x >= HEIGHT or y < 0 or y >= WIDTH
+def update_heuristic_all(arena, goalX, goalY):
 
+    #Use only the explored map!!!
 
-def is_obstacle(known_world, x, y):
-    if is_outside(x, y):
-        return True
-    return known_world[x][y] == 2
-
-
-def is_free(known_world, x, y):
-    if is_outside(x, y):
-        return False
-    return known_world[x][y] == 1
-
-
-def is_standable(known_world, x, y):
-    for i in range(3):
-        for j in range(3):
-            if not is_free(known_world, x+i-1, y+j-1):
-                return False
-    return True
-
-
-def can_go(known_world, x, y):
-    for i in range(3):
-        for j in range(3):
-            if is_obstacle(known_world, x+i-1, y+j-1):
-                return False
-    return True
-
-
-def update_heuristic_all(known_world, goalX, goalY):
     global h
     h = [[MAXC for j in range(WIDTH)] for i in range(HEIGHT)]
     free = [[True for j in range(WIDTH)] for i in range(HEIGHT)]
@@ -84,7 +65,7 @@ def update_heuristic_all(known_world, goalX, goalY):
         free[x][y] = False
         for k in range(4):
             newx, newy = x+DX[k], y+DY[k]
-            if can_go(known_world, newx, newy):
+            if arena.is_standable(newx, newy):
                 if free[newx][newy] and h[newx][newy] > h[x][y] + 1:
                     h[newx][newy] = h[x][y] + 1
 

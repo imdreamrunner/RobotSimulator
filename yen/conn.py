@@ -2,6 +2,7 @@ import json
 import socket
 import threading
 import thread
+from utils import *
 
 
 class Robot(threading.Thread):
@@ -12,6 +13,10 @@ class Robot(threading.Thread):
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.port = port
         self.handler = handler
+
+        self.x = 0
+        self.y = 0
+        self.d = 0
 
     def run(self):
         try:
@@ -49,3 +54,51 @@ class Robot(threading.Thread):
 
     def close(self):
         self.sock.close()
+
+    def update_position(self, x, y, d):
+        self.x, self.y, self.d = x, y, d
+
+    def go_straight(self, unit):
+        self.x, self.y = get_grid(self.x, self.y, self.d, unit)
+        self.send({
+            "event": "ACTION",
+            "action": "GO",
+            "quantity": unit
+        })
+
+    def turn_left(self):
+        self.d = left(self.d)
+        self.send({
+            "event": "ACTION",
+            "action": "ROTATE",
+            "quantity": -1
+        })
+
+    def turn_right(self):
+        self.d = right(self.d)
+        self.send({
+            "event": "ACTION",
+            "action": "ROTATE",
+            "quantity": 1
+        })
+
+    def kelly(self):
+        self.send({
+            "event": "ACTION",
+            "action": "KELLY"
+        })
+
+    def send_known_world(self, arena):
+        stri = ""
+        for w in range(arena.width-1, -1, -1):
+            for h in range(arena.height):
+                stri += str(arena.map[h][w])
+        map_data = {
+            "event": "MAP",
+            "map_info": stri,
+            "location_y": arena.width - self.y - 1,
+            "location_x": self.x,
+            "direction": right(right(self.d))
+        }
+        self.send(map_data)
+
