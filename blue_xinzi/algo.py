@@ -2,10 +2,15 @@
 
 import sys
 import os
+import threading
 import time
+import PiBluetooth
+import jsonpickle
 from conn import Robot
 from path_finder import find_path
 from util import *
+import logging
+import bluetooth
 
 
 LOCAL = False
@@ -27,6 +32,46 @@ if LOCAL:
 robotX = 9
 robotY = 7
 robotD = 0
+
+
+android = PiBluetooth.PiBluetooth()
+
+
+class androidThread (threading.Thread):
+    def __init__(self):
+        threading.Thread.__init__(self)
+
+    def run(self):
+        while True:
+            try:
+                android.connect()
+                while(True):
+                    logging.log(5,'receiving from android')
+                    receive_string = android.receive()
+                    while(receive_string == ''):
+                        logging.log(5,'give up receiving from android')
+                        time.sleep(0.5)
+                        receive_string = android.receive()
+                    logging.log(5, 'receiving from android end')
+
+                    receiveDict = jsonpickle.decode(receive_string)
+
+                    #put with blocking=True
+                    #incomingMessageQueue.put(receiveDict, True)
+                    event = receiveDict['event']
+                    event = event.upper()
+                    if event == 'EXPLORE' or event == 'START':
+                        robot.send({
+                            "event": event
+                        })
+            except bluetooth.BluetoothError:
+                logging.error('connecting to android failed, retrying')
+            except ValueError as msg:
+                logging.error(msg)
+            except Exception as msg:
+                logging.error(msg)
+
+androidThread = androidThread()
 
 knownWorld = [[0 for j in range(HEIGHT)] for i in range(WIDTH)]
 # 0 for unknown, 1 for free, 2 for obstacles, 3 for likely
