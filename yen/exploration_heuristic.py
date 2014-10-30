@@ -1,8 +1,10 @@
 from constants import *
+from queue import Task
+
 MAXC = 100
 
 h = [[0 for j in range(WIDTH)] for i in range(HEIGHT)]
-W = [0, 1, 2, 0]
+W = [0, 1, 2, 1]
 
 
 def print_heuristic_matrix():
@@ -26,7 +28,7 @@ def explore_heuristic(arena, robot, goalX, goalY, visited, challenge):
                 if (visited[newx][newy][newd] < 3) and (h[newx][newy] + W[k] < min_dis):
                     min_dis = h[newx][newy] + W[k]
                     ans = k
-    return [ans, 1]
+    return [Task(ans, 1)]
 
 
 def update_heuristic_all(arena, goalX, goalY):

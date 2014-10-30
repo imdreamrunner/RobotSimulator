@@ -7,6 +7,7 @@ from anena import Arena
 from constants import *
 from sensor_manager import update_known_world, print_sensors
 from calibration_manager import can_calibrate_front, can_calibrate_right, can_calibrate_left
+from queue import Queue, Task
 
 
 visited = [[[0] * 4 for j in range(WIDTH)] for i in range(HEIGHT)]
@@ -19,15 +20,15 @@ move_count = 0
 just_finish_kelly_front = False
 infinite_loop = False
 
-remain_action = 0
+task_queue = Queue()
 
 
 def robot_event_handler(res):
     event = res['event']
     if event == "EXPLORE":
-        send_actions([GO_STRAIGHT, 0])
+        send_task(Task(GO_STRAIGHT, 1))
     elif event == "START":
-        send_actions([TURN_LEFT, 1])
+        send_task(Task(TURN_LEFT, 1))
     elif event == "GET_MAP":
         send_known_world(arena)
     elif event == "TASK_FINISH":
@@ -43,7 +44,7 @@ def reset_visited():
 
 
 def need_calibrate_left_right():
-    return just_finish_kelly_front or go_straight_count >= 4 or move_count >= 8
+    return just_finish_kelly_front or go_straight_count >= 5 or move_count >= 7
 
 
 def print_console():
@@ -62,24 +63,43 @@ def print_console():
 
 
 def handle_task_finish(res):
-    global remain_action
-    remain_action -= 1
-    #Handle only the last task_finish when sending multiple actions
-    # print "remain action: ", remain_action
-    # if remain_action > 0:
-    #     return
+    global task_queue
 
-    print "Robot position: %d %d %d " % (robot.x, robot.y, robot.d)
-    sensors = res['sensors']
-    print_sensors(sensors)
-    # Update map only in exploration phase
-    if challenge < CHALLENGE_RUN_REACH_GOAL:
+    if task_queue.isEmpty():
+        # if task_queue empty, find next tasks need to be performed
+        print "Robot position: %d %d %d " % (robot.x, robot.y, robot.d)
+        sensors = res['sensors']
+        print_sensors(sensors)
+
+        # # Update map only in exploration phase
+        # if challenge < CHALLENGE_RUN_REACH_GOAL:
+        #     update_known_world(arena, robot, sensors)
         update_known_world(arena, robot, sensors)
+        print_console()
+        task_queue.enqueue_list(find_next_move())
 
-    print_console()
+    if not task_queue.isEmpty():
+        send_task(task_queue.dequeue())
 
-    action_list = find_next_move()
-    send_actions(action_list)
+
+def send_task(task):
+    global go_straight_count
+    action = task.action
+    quantity = task.quantity
+    if action == GO_STRAIGHT:
+        robot.go_straight(quantity)
+    elif action == TURN_LEFT:
+        robot.turn_left()
+    elif action == TURN_RIGHT:
+        robot.turn_right()
+    elif action == KELLY:
+        robot.kelly()
+
+    if action == GO_STRAIGHT:
+        go_straight_count += quantity
+    else:
+        go_straight_count = 0
+    send_known_world(arena)
 
 
 def find_next_move():
@@ -90,7 +110,7 @@ def find_next_move():
         #Always kelly when reaching goal
         if not just_finish_kelly_front:
             just_finish_kelly_front = True
-            return [KELLY, 1]
+            return [Task(KELLY, 1)]
 
         challenge += 1
         reset_visited()
@@ -107,7 +127,7 @@ def find_next_move():
     if (not just_finish_kelly_front) and can_calibrate_front(arena, robot):
         print "calibrate front"
         just_finish_kelly_front = True
-        return [KELLY, 1]
+        return [Task(KELLY, 1)]
     else:
         just_finish_kelly_front = False
 
@@ -115,20 +135,20 @@ def find_next_move():
     if can_calibrate_right(arena, robot) and need_calibrate_left_right():
         print "calibrate right"
         move_count = 0
-        return [TURN_RIGHT, 1, KELLY, 1, TURN_LEFT, 1]
+        return [Task(TURN_RIGHT, 1), Task(KELLY, 1), Task(TURN_LEFT, 1)]
 
     #check if can calibrate_left
     if can_calibrate_left(arena, robot) and need_calibrate_left_right():
         print "calibrate left"
         move_count = 0
-        return [TURN_LEFT, 1, KELLY, 1, TURN_RIGHT, 1]
+        return [Task(TURN_LEFT, 1), Task(KELLY, 1), Task(TURN_RIGHT, 1)]
 
     #Use algorithm to find the appropriate action
     print "find action using algorithm"
-    if challenge == CHALLENGE_EXPLORE_REACH_GOAL:
-        action = explore_heuristic(arena, robot, goalX, goalY, visited, challenge)
-    elif challenge == CHALLENGE_RUN_REACH_GOAL:
+    if challenge == CHALLENGE_RUN_REACH_GOAL:
         action = shortest_path(arena, robot, goalX, goalY, visited, challenge)
+    elif challenge == CHALLENGE_EXPLORE_REACH_GOAL:
+        action = explore_heuristic(arena, robot, goalX, goalY, visited, challenge)
     else:
         # check if infinite loop
         infinite_loop = infinite_loop or (visited[robot.x][robot.y][robot.d] > 2)
@@ -136,31 +156,10 @@ def find_next_move():
             action = explore_heuristic(arena, robot, goalX, goalY, visited, challenge)
         else:
             action = explore_lean_wall(arena, robot, goalX, goalY, visited, challenge)
-
+    print "Action: ", action
     move_count += 1
-    if action == GO_STRAIGHT:
-        go_straight_count += 1
-    else:
-        go_straight_count = 0
     visited[robot.x][robot.y][robot.d] += 1
     return action
-
-
-def send_actions(action_list):
-    global remain_action
-    remain_action += len(action_list)/2
-    for i in range(len(action_list)):
-        if i % 2 == 0:
-            action = action_list[i]
-            if action == GO_STRAIGHT:
-                robot.go_straight(action_list[i+1])
-            elif action == TURN_LEFT:
-                robot.turn_left()
-            elif action == TURN_RIGHT:
-                robot.turn_right()
-            elif action == KELLY:
-                robot.kelly()
-            send_known_world(arena)
 
 
 def send_known_world(arena):
