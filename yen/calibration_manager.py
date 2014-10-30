@@ -1,4 +1,4 @@
-from utils import *
+from constants import *
 
 
 def can_calibrate_front(arena, robot):

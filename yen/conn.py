@@ -2,7 +2,7 @@ import json
 import socket
 import threading
 import thread
-from utils import *
+from constants import *
 
 
 class Robot(threading.Thread):
@@ -88,7 +88,7 @@ class Robot(threading.Thread):
             "action": "KELLY"
         })
 
-    def send_known_world(self, arena):
+    def send_known_world(self, arena, robot):
         stri = ""
         for w in range(arena.width-1, -1, -1):
             for h in range(arena.height):
@@ -96,9 +96,9 @@ class Robot(threading.Thread):
         map_data = {
             "event": "MAP",
             "map_info": stri,
-            "location_y": arena.width - self.y - 1,
-            "location_x": self.x,
-            "direction": right(right(self.d))
+            "location_y": arena.width - robot.y - 1,
+            "location_x": robot.x,
+            "direction": right(right(robot.d))
         }
         self.send(map_data)
 

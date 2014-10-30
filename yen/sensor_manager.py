@@ -1,4 +1,4 @@
-from utils import *
+from constants import *
 
 
 def print_sensors(sensors):
@@ -6,17 +6,17 @@ def print_sensors(sensors):
 
 
 def update_known_cell_from_sensor(arena, x, y, direction, distance):
-    if distance > 32:
-        distance = 32
+    if distance > 25:
+        distance = 25
 
-    if distance > 30:
+    if distance > 20:
         no_obstacle = True
     else:
         no_obstacle = False
 
     x, y = get_grid(x, y, direction, 1)
 
-    while distance > 2:
+    while distance >= 0:
         arena.update_known_cell(x, y, 1)
         x, y = get_grid(x, y, direction, 1)
         distance -= 10

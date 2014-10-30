@@ -1,4 +1,4 @@
-from utils import *
+from constants import *
 
 STATE_PREFER_GO = 0
 STATE_PREFER_RIGHT = 1

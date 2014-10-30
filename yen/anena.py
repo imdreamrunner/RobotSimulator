@@ -66,16 +66,15 @@ class Arena(object):
 
         for w in range(self.width):
             for h in range(self.height):
-                print self.map[h][self.width - w - 1],
-                # print knownWorld[w][h],
+                # print self.map[h][self.width - w - 1],
                 expl <<= 1
                 if self.map[h][w] > 0:
                     expl |= 0b1
                     obst <<= 1
                     if self.map[h][w] == 2:
                         obst |= 0b1
-            print
-        print
+            # print
+        # print
         expl <<= 2
         expl |= 0b11
 

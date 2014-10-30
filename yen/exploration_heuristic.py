@@ -1,4 +1,4 @@
-from utils import *
+from constants import *
 MAXC = 100
 
 h = [[0 for j in range(WIDTH)] for i in range(HEIGHT)]

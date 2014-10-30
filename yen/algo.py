@@ -4,7 +4,7 @@ from shortest_path_heuristic import shortest_path
 from exploration_heuristic import explore_heuristic
 from exploration_lean_wall import explore_lean_wall
 from anena import Arena
-from utils import *
+from constants import *
 from sensor_manager import update_known_world, print_sensors
 from calibration_manager import can_calibrate_front, can_calibrate_right, can_calibrate_left
 
@@ -25,16 +25,15 @@ remain_action = 0
 def robot_event_handler(res):
     event = res['event']
     if event == "EXPLORE":
-        send_actions([TURN_RIGHT])
+        send_actions([GO_STRAIGHT, 0])
     elif event == "START":
-        send_actions([TURN_LEFT])
+        send_actions([TURN_LEFT, 1])
     elif event == "GET_MAP":
-        send_actions([SEND_MAP])
+        send_known_world(arena)
     elif event == "TASK_FINISH":
         print "TASK FINISH"
         handle_task_finish(res)
-        send_known_world(arena)
-        # print_known_world()
+        arena.print_known_world()
 
 
 def reset_visited():
@@ -47,10 +46,25 @@ def need_calibrate_left_right():
     return just_finish_kelly_front or go_straight_count >= 4 or move_count >= 8
 
 
+def print_console():
+    for x in range(arena.height):
+        for y in range(arena.width):
+            if x == robot.x and y == robot.y:
+                print "@",
+            elif arena.map[x][y] == 0:
+                print "?",
+            elif arena.map[x][y] == 1:
+                print ".",
+            else:
+                print "#",
+        print
+    print
+
+
 def handle_task_finish(res):
     global remain_action
-    # remain_action -= 1
-    # #Handle only the last task_finish when sending multiple actions
+    remain_action -= 1
+    #Handle only the last task_finish when sending multiple actions
     # print "remain action: ", remain_action
     # if remain_action > 0:
     #     return
@@ -58,8 +72,11 @@ def handle_task_finish(res):
     print "Robot position: %d %d %d " % (robot.x, robot.y, robot.d)
     sensors = res['sensors']
     print_sensors(sensors)
-    update_known_world(arena, robot, sensors)
-    arena.print_console()
+    # Update map only in exploration phase
+    if challenge < CHALLENGE_RUN_REACH_GOAL:
+        update_known_world(arena, robot, sensors)
+
+    print_console()
 
     action_list = find_next_move()
     send_actions(action_list)
@@ -70,6 +87,11 @@ def find_next_move():
     #Check if reach goal
     if robot.x == goalX and robot.y == goalY:
         #If reach goal
+        #Always kelly when reaching goal
+        if not just_finish_kelly_front:
+            just_finish_kelly_front = True
+            return [KELLY, 1]
+
         challenge += 1
         reset_visited()
         if challenge == CHALLENGE_EXPLORE_REACH_START:
@@ -103,7 +125,9 @@ def find_next_move():
 
     #Use algorithm to find the appropriate action
     print "find action using algorithm"
-    if challenge == CHALLENGE_RUN_REACH_GOAL:
+    if challenge == CHALLENGE_EXPLORE_REACH_GOAL:
+        action = explore_heuristic(arena, robot, goalX, goalY, visited, challenge)
+    elif challenge == CHALLENGE_RUN_REACH_GOAL:
         action = shortest_path(arena, robot, goalX, goalY, visited, challenge)
     else:
         # check if infinite loop
@@ -124,7 +148,7 @@ def find_next_move():
 
 def send_actions(action_list):
     global remain_action
-    remain_action += len(action_list)
+    remain_action += len(action_list)/2
     for i in range(len(action_list)):
         if i % 2 == 0:
             action = action_list[i]
@@ -136,12 +160,13 @@ def send_actions(action_list):
                 robot.turn_right()
             elif action == KELLY:
                 robot.kelly()
+            send_known_world(arena)
 
 
 def send_known_world(arena):
-    robot.send_known_world(arena)
-    # if DISPLAY_MAP:
-    #     mapDisplay.send(map_data)
+    robot.send_known_world(arena, robot)
+    if DISPLAY_MAP:
+        mapDisplay.send_known_world(arena, robot)
 
 
 #############################################################
@@ -169,6 +194,10 @@ while 1:
     elif s == "explore":
         robot.send({
             "event": "EXPLORE"
+        })
+    elif s == "start":
+        robot.send({
+            "event": "START"
         })
     else:
         print "input q to exit."
