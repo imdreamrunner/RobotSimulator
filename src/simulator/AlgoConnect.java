@@ -12,6 +12,7 @@
 
 package simulator;
 
+import javafx.application.Platform;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
@@ -39,7 +40,7 @@ public class AlgoConnect {
             @Override
             public void run() {
                 System.out.println("Starting socket server...");
-                Main.primaryStage.setTitle("Starting socket server...");
+                setMainStageTitle("Starting socket server...");
                 socket = null;
                 try {
                     serverSocket = new ServerSocket(8080);
@@ -48,10 +49,10 @@ public class AlgoConnect {
                 }
                 try {
                     while (true) {
-                        Main.primaryStage.setTitle("Waiting for connection.");
+                        setMainStageTitle("Waiting for connection.");
                         socket = serverSocket.accept();
                         System.out.println("Socket connected...");
-                        Main.primaryStage.setTitle("Socket connected.");
+                        setMainStageTitle("Socket connected.");
                         PrintWriter out = new PrintWriter(socket.getOutputStream());
                         InputStream is = socket.getInputStream();
                         break_loop = false;
@@ -72,7 +73,7 @@ public class AlgoConnect {
                             }
                         }
                         System.out.println("Socket disconnected.");
-                        Main.primaryStage.setTitle("Socket disconnected.");
+                        setMainStageTitle("Socket disconnected.");
                         is.close();
                         out.close();
                     }
@@ -156,6 +157,16 @@ public class AlgoConnect {
 
     public void breakLoop() {
         break_loop = true;
+    }
+
+    private void setMainStageTitle(final String title) {
+        Platform.runLater(new Runnable() {
+
+            @Override
+            public void run() {
+                Main.primaryStage.setTitle(title);
+            }
+        });
     }
 
 }
