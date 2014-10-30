@@ -42,7 +42,7 @@ public class AlgoConnect {
                 Main.primaryStage.setTitle("Starting socket server...");
                 socket = null;
                 try {
-                    serverSocket = new ServerSocket(8888);
+                    serverSocket = new ServerSocket(8080);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -57,12 +57,9 @@ public class AlgoConnect {
                         break_loop = false;
                         while (!Thread.currentThread().isInterrupted() && !break_loop) {
                             int availableBytes = is.available();
-                            int loop = 0;
                             while (availableBytes < 1 && !break_loop) {
                                 try{Thread.sleep(100);}catch(InterruptedException ie){ie.printStackTrace();}
                                 availableBytes = is.available();
-                                loop ++;
-                                // if (loop > 1000) break;
                             }
                             if (availableBytes == 0) break;
                             byte[] buffer = new byte[availableBytes];
@@ -70,7 +67,7 @@ public class AlgoConnect {
                             if (is_result < 0) break;
                             String read = new String(buffer);
                             for (String line : read.split("\n")) {
-                                System.out.println("line:" + line);
+                                System.out.println("Received: " + line);
                                 process(line);
                             }
                         }
@@ -117,21 +114,30 @@ public class AlgoConnect {
     public void process(String message) {
         JSONObject jsonObject = (JSONObject) JSONValue.parse(message);
         String event = jsonObject.get("event").toString();
-        System.out.println("EVENT: " + event);
+        // System.out.println("EVENT: " + event);
         if (event.equals("ACTION")) {
             String action = jsonObject.get("action").toString();
-            Double value = ((Number)jsonObject.get("value")).doubleValue();
             try {
                 if (action.equals("GO")) {
-                    Main.robot.scheduleTask(new GoStraight(value));
+                    Integer quantity = ((Number)jsonObject.get("quantity")).intValue();
+                    Main.robot.scheduleTask(new GoStraight(quantity * 10.0));
                 } else if (action.equals("ROTATE")) {
-                    Main.robot.scheduleTask(new Rotate(value));
+                    Integer quantity = ((Number)jsonObject.get("quantity")).intValue();
+                    Main.robot.scheduleTask(new Rotate(quantity * 0.25));
+                } else if (action.equals("KELLY")) {
+                    sendTaskFinish();
                 }
             } catch (RobotException e) {
                 e.printStackTrace();
             }
         } else if (event.equals("MAP")) {
-            // TODO
+            String map_info = jsonObject.get("map_info").toString();
+            for (int i = 0; i < Main.WIDTH; i++) {
+                for (int j = 0; j < Main.HEIGHT; j++) {
+                    Main.arena.markObserved(i, j,
+                            Integer.parseInt(""+map_info.charAt(Main.HEIGHT * (Main.WIDTH - i - 1) + j)));
+                }
+            }
         }
     }
 

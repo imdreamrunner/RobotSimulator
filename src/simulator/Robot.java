@@ -122,8 +122,13 @@ public class Robot {
 
 
     public double senseFrontMid() {
+        return senseFrontMidReal();
+    }
+
+    private double senseFrontMidReal() {
         return senseFromPoint(x, y, d) - 10;
     }
+
 
     public double senseFrontLeft() {
         return senseFromPoint(x + 10 * Math.sin(2 * d * Math.PI),

@@ -11,8 +11,12 @@ import javafx.stage.WindowEvent;
 
 public class Main extends Application {
 
+    public static boolean ERROR = true;
+
     public static int WIDTH = 20;
     public static int HEIGHT = 15;
+
+    public static int speed = 3;
 
     public static Robot robot;
     public static Arena arena;

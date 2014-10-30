@@ -12,7 +12,7 @@ import java.util.Scanner;
 public class Arena {
     protected AnchorPane root;
     private boolean[][] map;
-    private int[][] marked;
+    private int[][] marked; // 0 unknown, 1 free, 2 obstacle
     private Group obstacles;
     private Group observedObstacles;
     private Rectangle board, green, start, goal;
@@ -134,9 +134,9 @@ public class Arena {
         observedObstacles.getChildren().clear();
     }
 
-    public void markObserved(int x, int y, boolean hasObstacle) {
+    public void markObserved(int x, int y, int status) {
         try {
-            marked[y][x] = hasObstacle ? 2 : 1; // free 1, not free 2.
+            marked[y][x] = status;
         } catch (ArrayIndexOutOfBoundsException ex) {
 
         }

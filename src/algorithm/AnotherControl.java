@@ -76,7 +76,7 @@ public class AnotherControl {
         for (int i = 6; i < 9; i++) {
             for (int j = 8; j < 11; j++) {
                 theWorldIKnow[i][j] = 1; // The green area is free.
-                arena.markObserved(j, i, false);
+                arena.markObserved(j, i, 1);
             }
         }
 
@@ -104,29 +104,29 @@ public class AnotherControl {
                         if (robot.senseFrontLeft() < 10) {
                             Point front = frontBlock(location.clone(), 2);
                             leftBlock(front, 1);
-                            arena.markObserved(front.x, front.y, true);
+                            arena.markObserved(front.x, front.y, 2);
                         }
                         if (robot.senseFrontRight() < 10) {
                             Point front = frontBlock(location.clone(), 2);
                             rightBlock(front, 1);
-                            arena.markObserved(front.x, front.y, true);
+                            arena.markObserved(front.x, front.y, 2);
                         }
                         if (robot.senseFrontMid() < 10) {
                             Point front = frontBlock(location.clone(), 2);
-                            arena.markObserved(front.x, front.y, true);
+                            arena.markObserved(front.x, front.y, 2);
                         }
                     }
                     if (robot.senseLeft() > 10) {
                         options[location.y][location.x].add(left(direction));
                     } else {
                         Point side = leftBlock(location.clone(), 2);
-                        arena.markObserved(side.x, side.y, true);
+                        arena.markObserved(side.x, side.y, 2);
                     }
                     if (robot.senseRight() > 10) {
                         options[location.y][location.x].add(right(direction));
                     } else {
                         Point side = rightBlock(location.clone(), 2);
-                        arena.markObserved(side.x, side.y, true);
+                        arena.markObserved(side.x, side.y, 2);
                     }
                     if (options[location.y][location.x].contains(direction)) {
                         options[location.y][location.x].remove(direction);
@@ -224,7 +224,7 @@ public class AnotherControl {
                 if (x + i >= 0 && x + i < WIDTH
                  && y + j >= 0 && y + j < HEIGHT) {
                     theWorldIKnow[y+j][x+i] = 1;
-                    arena.markObserved(x+i, y+j, false);
+                    arena.markObserved(x+i, y+j, 1);
                 }
             }
         }

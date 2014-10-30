@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import java.lang.*?>
-<?import javafx.collections.*?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.control.Button?>
@@ -14,17 +13,11 @@
     <Button layoutX="1000.0" layoutY="30.0" mnemonicParsing="false" onAction="#onExploreClick" text="EXPLORE" />
     <Button layoutX="1000.0" layoutY="60.0" mnemonicParsing="false" onAction="#onStartClick" text="START" />
     <Button layoutX="1000.0" layoutY="90.0" mnemonicParsing="false" onAction="#onReconnect" text="RESET" />
-    <ComboBox fx:id="speedBox" layoutX="1000.0" layoutY="120.0" promptText="Speed 3">
-      <items>
-        <FXCollections fx:factory="observableArrayList">
-          <String fx:value="Speed 1" />
-          <String fx:value="Speed 2" />
-          <String fx:value="Speed 3" />
-          <String fx:value="Speed 4" />
-          <String fx:value="Speed 5" />
-        </FXCollections>
-      </items>
-    </ComboBox>
+    <RadioButton layoutX="1000.0" layoutY="122.0" mnemonicParsing="false" selected="true" text="Speed 1" onAction="#setSpeed1" />
+    <RadioButton layoutX="1000.0" layoutY="145.0" mnemonicParsing="false" text="Speed 2" onAction="#setSpeed2" />
+    <RadioButton layoutX="1000.0" layoutY="167.0" mnemonicParsing="false" text="Speed 3" onAction="#setSpeed3" />
+    <RadioButton layoutX="1000.0" layoutY="189.0" mnemonicParsing="false" text="Speed 4" onAction="#setSpeed4" />
+    <RadioButton layoutX="1000.0" layoutY="211.0" mnemonicParsing="false" text="Speed 5" onAction="#setSpeed5" />
     <!--
     <Button layoutX="1000.0" layoutY="30" mnemonicParsing="false" text="MOVE" onAction="#onMoveClick" />
     <Button layoutX="1000.0" layoutY="60" mnemonicParsing="false" text="STOP" onAction="#onStopClick" />

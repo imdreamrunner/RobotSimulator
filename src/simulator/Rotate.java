@@ -11,7 +11,10 @@ public class Rotate extends Task {
         if (rotate <= - 0.5) {
             rotate += 1;
         }
-        this.rotate = rotate;
+        if (Main.ERROR)
+            this.rotate = rotate + Math.random() * 0.05 - 0.025;
+        else
+            this.rotate = rotate;
     }
 
     @Override

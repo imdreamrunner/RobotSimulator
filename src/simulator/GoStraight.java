@@ -5,7 +5,11 @@ public class GoStraight extends Task {
     private double passDistance;
     private double orgX, orgY, prgX, prgY;
     public GoStraight(double distance) {
-        this.distance = distance;
+
+        if (Main.ERROR)
+            this.distance = distance + Math.random() * 0.5 - 0.25;
+        else
+            this.distance = distance;
     }
     public double getDistance() {
         return distance;
