@@ -7,7 +7,10 @@ from anena import Arena
 from constants import *
 from sensor_manager import update_known_world, print_sensors
 from calibration_manager import can_calibrate_front, can_calibrate_right, can_calibrate_left
-
+import piBluetooth
+import jsonpickle
+import bluetooth
+import threading
 
 visited = [[[0] * 4 for j in range(WIDTH)] for i in range(HEIGHT)]
 # Initiate the goal and challenge level
@@ -169,10 +172,54 @@ def send_known_world(arena):
         mapDisplay.send_known_world(arena, robot)
 
 
+
+class androidThread (threading.Thread):
+
+    def __init__(self):
+        threading.Thread.__init__(self)
+        self.isRunning = True
+
+    def run(self):
+        while True:
+            try:
+                android.connect()
+                while(self.isRunning):
+                    receive_string = android.receive()
+                    while(receive_string == '' and self.isRunning):
+                        print 'is Running'
+                        time.sleep(1)
+                        receive_string = android.receive()
+
+                    if not self.isRunning:
+                        return
+
+                    print 'receiving from android end: ' + receive_string
+
+                    receiveDict = jsonpickle.decode(receive_string)
+
+                    #put with blocking=True
+                    #incomingMessageQueue.put(receiveDict, True)
+                    event = receiveDict['event']
+                    event = event.upper()
+                    if event == 'EXPLORE' or event == 'START':
+                        robot.send({
+                            "event": event
+                        })
+            except bluetooth.BluetoothError:
+                print 'connecting to android failed, retrying'
+            except ValueError as msg:
+                print msg
+            except Exception as msg:
+                print msg
+
+android = piBluetooth.PiBluetooth()
+androidThreadInstance = androidThread()
+androidThreadInstance.start()
+
 #############################################################
 arena = Arena(HEIGHT, WIDTH)
-# robot = Robot("192.168.14.144", 8080, robot_event_handler)
-robot = Robot("127.0.0.1", 8080, robot_event_handler)
+robot = Robot("192.168.14.144", 8080, robot_event_handler)
+#robot = Robot("127.0.0.1", 8080, robot_event_handler)
 mapDisplay = Robot("127.0.0.1", 10200, robot_event_handler)
 robot.update_position(7, 9, 1)
 robot.start()
@@ -183,6 +230,7 @@ if DISPLAY_MAP:
 while 1:
     s = raw_input()
     if s == 'q':
+        androidThreadInstance.isRunning = False
         robot.close()
         sys.exit()
     elif s == "left":
