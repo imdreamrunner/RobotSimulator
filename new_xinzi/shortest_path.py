@@ -38,7 +38,15 @@ def find_path_list(mm, nx, ny, nd, tx, ty):
     while not (nx == tx and ny == ty):
         next_step = c[nx][ny][nd]
         if next_step[2] == nd:
-            path_list.append("straight")
+            inc = False
+            if len(path_list) > 0:
+                last_path = path_list[-1]
+                if isinstance(last_path, int):
+                    if last_path < 9:
+                        path_list[-1] = last_path + 1
+                        inc = True
+            if not inc:
+                path_list.append(1)
         elif next_step[2] == (nd + 1) % 4:
             path_list.append("right")
         else:

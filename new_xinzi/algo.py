@@ -8,7 +8,7 @@ from path_finder import find_path
 from util import *
 
 
-LOCAL = False
+LOCAL = True
 DISPLAY_MAP = False
 PI_IP = "192.168.14.144"
 PI_PORT = 8080
@@ -263,6 +263,8 @@ def robot_event_handler(res):
             turn_left()
         elif action == "right":
             turn_right()
+        else:
+            go_straight(action)
 
         send_know_world()
 
