@@ -1,41 +1,44 @@
 from constants import *
 from queue import Task
-
-STATE_PREFER_GO = 0
-STATE_PREFER_RIGHT = 1
-state = STATE_PREFER_GO
+from algorithm import Algorithm
 
 
-def explore_lean_wall(arena, robot, goalX, goalY, visited, challenge):
-    global state
+class ExplorationLeanWall(Algorithm):
+    STATE_PREFER_GO = 0
+    STATE_PREFER_RIGHT = 1
 
-    if challenge == CHALLENGE_EXPLORE_REACH_GOAL:
-        if robot.d == 2:
-            state = STATE_PREFER_GO
+    def __init__(self):
+        super(ExplorationLeanWall, self).__init__()
+        self.state = self.STATE_PREFER_GO
 
-    if challenge == CHALLENGE_EXPLORE_REACH_START:
-        if robot.d == 0:
-            state = STATE_PREFER_GO
+    def run(self, arena, robot, goalX, goalY, visited, challenge):
+        if challenge == CHALLENGE_EXPLORE_REACH_GOAL:
+            if robot.d == 2:
+                self.state = self.STATE_PREFER_GO
 
-    if state == STATE_PREFER_GO:
-        if arena.is_standable(robot.x + DX[robot.d], robot.y + DY[robot.d]):
-            state = STATE_PREFER_RIGHT
-            return [Task(GO_STRAIGHT, 1)]
-        else:
-            state = STATE_PREFER_GO
-            return [Task(TURN_LEFT, 1)]
-    else:
-        # state = STATE_PREFER_RIGHT
-        if arena.can_not_standable(robot.x + DX[right(robot.d)], robot.y + DY[right(robot.d)]):
+        if challenge == CHALLENGE_EXPLORE_REACH_START:
+            if robot.d == 0:
+                self.state = self.STATE_PREFER_GO
+
+        if self.state == self.STATE_PREFER_GO:
             if arena.is_standable(robot.x + DX[robot.d], robot.y + DY[robot.d]):
-                state = STATE_PREFER_RIGHT
+                self.state = self.STATE_PREFER_RIGHT
                 return [Task(GO_STRAIGHT, 1)]
             else:
-                state = STATE_PREFER_GO
+                self.state = self.STATE_PREFER_GO
                 return [Task(TURN_LEFT, 1)]
         else:
-            state = STATE_PREFER_GO
-            return [Task(TURN_RIGHT, 1)]
+            # state = STATE_PREFER_RIGHT
+            if arena.can_not_standable(robot.x + DX[right(robot.d)], robot.y + DY[right(robot.d)]):
+                if arena.is_standable(robot.x + DX[robot.d], robot.y + DY[robot.d]):
+                    self.state = self.STATE_PREFER_RIGHT
+                    return [Task(GO_STRAIGHT, 1)]
+                else:
+                    self.state = self.STATE_PREFER_GO
+                    return [Task(TURN_LEFT, 1)]
+            else:
+                self.state = self.STATE_PREFER_GO
+                return [Task(TURN_RIGHT, 1)]
 
 
 
