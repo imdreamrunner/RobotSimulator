@@ -92,6 +92,9 @@ def send_task(task):
         go_straight_count += quantity
     else:
         go_straight_count = 0
+
+    if action != KELLY:
+        move_count += 1
     send_known_world(arena)
 
 
@@ -99,7 +102,7 @@ def need_calibrate_left_right():
     if challenge == CHALLENGE_RUN_REACH_GOAL:
         return False
     # return just_finish_kelly_front or \
-    return go_straight_count >= 4 or move_count >= 6
+    return go_straight_count >= 5 or move_count >= 8
 
 
 def find_next_move():
@@ -116,6 +119,7 @@ def find_next_move():
             return [Task(KELLY, 1)]
 
         challenge += 1
+        init_challenge()
         if challenge == CHALLENGE_EXPLORE_REACH_START:
             init_challenge()
             goalX, goalY = 1, 1
@@ -169,7 +173,6 @@ def find_next_move():
     print "Action: ",
     for action in action_list:
         print "[", action.action, action.quantity, "]"
-    move_count += 1
     visited[robot.x][robot.y][robot.d] += 1
     return action_list
 
