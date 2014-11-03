@@ -49,7 +49,7 @@ class ShortestPathBFS(Algorithm):
         if ans == GO_STRAIGHT:
             x, y, d = robot.x, robot.y, robot.d
             unit = 1
-            for i in range(1, 7):
+            for i in range(1, 10):
                 newx, newy, newd = x + DX[d], y + DY[d], d
                 if self.h[newx][newy][d] > self.h[x][y][d]:
                     break
