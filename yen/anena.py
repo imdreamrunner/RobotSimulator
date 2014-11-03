@@ -68,7 +68,7 @@ class Arena(object):
             for h in range(self.height):
                 # print self.map[h][self.width - w - 1],
                 expl <<= 1
-                if self.map[h][w] > 0:
+                if self.map[h][w] > 0 or True:
                     expl |= 0b1
                     obst <<= 1
                     if self.map[h][w] == 2:
