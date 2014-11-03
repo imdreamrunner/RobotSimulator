@@ -48,10 +48,12 @@ def robot_event_handler(res):
         arena.print_known_world()
 
 
-def reset_visited():
-    global visited, infinite_loop
+def init_challenge():
+    global task_queue, visited, infinite_loop
     visited = [[[False] * 4 for j in range(WIDTH)] for i in range(HEIGHT)]
     infinite_loop = False
+    if challenge == CHALLENGE_RUN_REACH_GOAL:
+        task_queue = Queue()
 
 
 def handle_task_finish(res):
@@ -71,7 +73,7 @@ def handle_task_finish(res):
 
 
 def send_task(task):
-    global go_straight_count
+    global go_straight_count, move_count
     action = task.action
     quantity = task.quantity
     if action == GO_STRAIGHT:
@@ -82,6 +84,10 @@ def send_task(task):
         robot.turn_right()
     elif action == KELLY:
         robot.kelly()
+        # update calibration move count
+        go_straight_count = 0
+        move_count = 0
+        # update last kelly
 
     if action == GO_STRAIGHT:
         go_straight_count += quantity
@@ -93,7 +99,8 @@ def send_task(task):
 def need_calibrate_left_right():
     if challenge == CHALLENGE_RUN_REACH_GOAL:
         return False
-    return just_finish_kelly_front or go_straight_count >= 5 or move_count >= 8
+    # return just_finish_kelly_front or \
+    return go_straight_count >= 4 or move_count >= 6
 
 
 def find_next_move():
@@ -110,7 +117,7 @@ def find_next_move():
             return [Task(KELLY, 1)]
 
         challenge += 1
-        reset_visited()
+        init_challenge()
         if challenge == CHALLENGE_EXPLORE_REACH_START:
             goalX, goalY = 1, 1
         elif challenge == CHALLENGE_RUN_REACH_GOAL:
@@ -131,13 +138,11 @@ def find_next_move():
     #check if can calibrate_right
     if can_calibrate_right(arena, robot) and need_calibrate_left_right():
         print "calibrate right"
-        move_count = 0
         return [Task(TURN_RIGHT, 1), Task(KELLY, 1), Task(TURN_LEFT, 1)]
 
     #check if can calibrate_left
     if can_calibrate_left(arena, robot) and need_calibrate_left_right():
         print "calibrate left"
-        move_count = 0
         return [Task(TURN_LEFT, 1), Task(KELLY, 1), Task(TURN_RIGHT, 1)]
 
     #Use algorithm to find the appropriate action

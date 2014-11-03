@@ -4,7 +4,7 @@ from algorithm import Algorithm
 
 
 class Node(object):
-    def __init__(self, x = 0, y = 0, d = 0):
+    def __init__(self, x=0, y=0, d=0):
         self.x = x
         self.y = y
         self.d = d
@@ -27,6 +27,9 @@ class ShortestPathBFS(Algorithm):
                 print
             print
 
+    def manhattan(self, x1, y1, x2, y2):
+        return abs(x1 - x2) + abs(y1 - y2)
+
     def run(self, arena, robot, goalX, goalY, visited, challenge):
         """
             Return next action to go shortest path
@@ -35,9 +38,9 @@ class ShortestPathBFS(Algorithm):
         self.swap_h()
         self.print_heuristic_matrix()
 
-        ans = 1
+        ans = NO_ACTION
         min_dis = self.MAXC
-        for k in [0, 1, 3]:
+        for k in ACTION_LIST:
             if k == 0:
                 newx, newy, newd = robot.x + DX[robot.d], robot.y + DY[robot.d], robot.d
             else:
@@ -45,6 +48,17 @@ class ShortestPathBFS(Algorithm):
             if self.h[newx][newy][newd] + self.W[k] < min_dis:
                 min_dis = self.h[newx][newy][newd] + self.W[k]
                 ans = k
+
+        if ans == NO_ACTION:
+            # If no path found to go:
+            min_dis = self.MAXC
+            ans = TURN_RIGHT
+            for k in ACTION_LIST:
+                newx, newy, newd = robot.x+DX[(robot.d+k) % 4], robot.y+DY[(robot.d+k) % 4], (robot.d+k) % 4
+                if k != 0 or arena.is_standable(newx, newy):
+                    if k == 0 or ((visited[robot.x][robot.y][newd] < 2) and self.manhattan(newx, newy, goalX, goalY) < min_dis):
+                        min_dis = self.manhattan(newx, newy, goalX, goalY)
+                        ans = k
 
         if ans == GO_STRAIGHT:
             x, y, d = robot.x, robot.y, robot.d

@@ -18,18 +18,31 @@ class ExplorationHeuristic(Algorithm):
             print
         print
 
+    def manhattan(self, x1, y1, x2, y2):
+        return abs(x1 - x2) + abs(y1 - y2)
+
     def run(self, arena, robot, goalX, goalY, visited, challenge):
         self.update_heuristic_all(arena, goalX, goalY)
 
         min_dis = self.MAXC
-        ans = 1
+        ans = NO_ACTION
 
-        for k in [0, 1, 3]:
+        for k in ACTION_LIST:
             newx, newy, newd = robot.x+DX[(robot.d+k) % 4], robot.y+DY[(robot.d+k) % 4], (robot.d+k) % 4
             if k != 0 or arena.is_standable(newx, newy):
-                if not arena.is_obstacle(newx, newy):
-                    if (visited[newx][newy][newd] < 3) and (self.h[newx][newy] + self.W[k] < min_dis):
-                        min_dis = self.h[newx][newy] + self.W[k]
+                if k == 0 or ((visited[robot.x][robot.y][newd] < 2) and (self.h[newx][newy] + self.W[k] < min_dis)):
+                    min_dis = self.h[newx][newy] + self.W[k]
+                    ans = k
+
+        if ans == NO_ACTION:
+            # If no path found to go:
+            min_dis = self.MAXC
+            ans = TURN_RIGHT
+            for k in ACTION_LIST:
+                newx, newy, newd = robot.x+DX[(robot.d+k) % 4], robot.y+DY[(robot.d+k) % 4], (robot.d+k) % 4
+                if k != 0 or arena.is_standable(newx, newy):
+                    if k == 0 or ((visited[robot.x][robot.y][newd] < 2) and self.manhattan(newx, newy, goalX, goalY) < min_dis):
+                        min_dis = self.manhattan(newx, newy, goalX, goalY)
                         ans = k
         return [Task(ans, 1)]
 
