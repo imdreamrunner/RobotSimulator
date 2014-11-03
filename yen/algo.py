@@ -37,9 +37,9 @@ task_queue = Queue()
 def robot_event_handler(res):
     event = res['event']
     if event == "EXPLORE":
-        send_task(Task(GO_STRAIGHT, 1))
+        send_task(Task(GO_STRAIGHT, 0))
     elif event == "START":
-        send_task(Task(TURN_LEFT, 1))
+        send_task(Task(GO_STRAIGHT, 0))
     elif event == "GET_MAP":
         send_known_world(arena)
     elif event == "TASK_FINISH":
@@ -67,7 +67,6 @@ def handle_task_finish(res):
         update_known_world(arena, robot, sensors)
         print_console()
         task_queue.enqueue_list(find_next_move())
-
     if not task_queue.isEmpty():
         send_task(task_queue.dequeue())
 
@@ -117,10 +116,17 @@ def find_next_move():
             return [Task(KELLY, 1)]
 
         challenge += 1
-        init_challenge()
         if challenge == CHALLENGE_EXPLORE_REACH_START:
+            init_challenge()
             goalX, goalY = 1, 1
         elif challenge == CHALLENGE_RUN_REACH_GOAL:
+            if robot.d == 3:
+                challenge -= 1
+                return [Task(TURN_RIGHT, 1), Task(KELLY, 1), Task(TURN_RIGHT, 1)]
+            elif robot.d == 4:
+                challenge -= 1
+                return [Task(TURN_RIGHT, 1)]
+            init_challenge()
             goalX, goalY = 13, 18
             return []
         elif challenge == CHALLENGE_RUN_FINISH:
@@ -148,7 +154,8 @@ def find_next_move():
     #Use algorithm to find the appropriate action
     print "find action using algorithm"
     if challenge == CHALLENGE_RUN_REACH_GOAL:
-        algo = shortest_path_bfs_algo
+        #algo = shortest_path_bfs_algo
+        algo = shortest_path_heuristic_algo
     elif challenge == CHALLENGE_EXPLORE_REACH_GOAL:
         algo = exploration_heuristic_algo
     else:
