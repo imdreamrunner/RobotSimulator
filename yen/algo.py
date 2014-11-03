@@ -67,7 +67,6 @@ def handle_task_finish(res):
         update_known_world(arena, robot, sensors)
         print_console()
         task_queue.enqueue_list(find_next_move())
-
     if not task_queue.isEmpty():
         send_task(task_queue.dequeue())
 
@@ -117,10 +116,17 @@ def find_next_move():
             return [Task(KELLY, 1)]
 
         challenge += 1
-        init_challenge()
         if challenge == CHALLENGE_EXPLORE_REACH_START:
+            init_challenge()
             goalX, goalY = 1, 1
         elif challenge == CHALLENGE_RUN_REACH_GOAL:
+            if robot.d == 3:
+                challenge -= 1
+                return [Task(TURN_LEFT, 1)]
+            elif robot.d == 4:
+                challenge -= 1
+                return [Task(TURN_RIGHT, 1)]
+            init_challenge()
             goalX, goalY = 13, 18
             return []
         elif challenge == CHALLENGE_RUN_FINISH:
