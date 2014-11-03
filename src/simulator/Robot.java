@@ -30,6 +30,10 @@ public class Robot {
         taskList = new LinkedList<Task>();
     }
 
+    void setColor(String newColor) {
+        circle.setFill(Color.web(newColor, 0.8));
+    }
+
     void show() {
         hide();
         display();

@@ -22,6 +22,9 @@ import java.io.InputStream;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @author Martin Cazares
  */
@@ -112,8 +115,11 @@ public class AlgoConnect {
         }
     }
 
-    public void process(String message) {
-        JSONObject jsonObject = (JSONObject) JSONValue.parse(message);
+    private List<JSONObject> incoming = new ArrayList<JSONObject>();
+
+    private void doTask() {
+        if (incoming.size() == 0) return;
+        JSONObject jsonObject = incoming.remove(incoming.size()-1);
         String event = jsonObject.get("event").toString();
         // System.out.println("EVENT: " + event);
         if (event.equals("ACTION")) {
@@ -126,7 +132,7 @@ public class AlgoConnect {
                     Integer quantity = ((Number)jsonObject.get("quantity")).intValue();
                     Main.robot.scheduleTask(new Rotate(quantity * 0.25));
                 } else if (action.equals("KELLY")) {
-                    sendTaskFinish();
+                    Main.robot.scheduleTask(new Calibration());
                 }
             } catch (RobotException e) {
                 e.printStackTrace();
@@ -142,6 +148,12 @@ public class AlgoConnect {
         }
     }
 
+    public void process(String message) {
+        JSONObject jsonObject = (JSONObject) JSONValue.parse(message);
+        incoming.add(jsonObject);
+        doTask();
+    }
+
     public void sendTaskFinish() {
         JSONObject obj = new JSONObject();
         obj.put("event","TASK_FINISH");
@@ -153,6 +165,7 @@ public class AlgoConnect {
         list.add(Main.robot.senseRight());
         obj.put("sensors", list);
         sendMessage(obj.toJSONString());
+        doTask();
     }
 
     public void breakLoop() {
