@@ -256,10 +256,11 @@ if DISPLAY_MAP:
     mapDisplay.start()
 
 
+
 while 1:
     s = raw_input()
     if s == 'q':
-        androidThreadInstance.isRunning = False
+        # androidThreadInstance.isRunning = False
         robot.close()
         sys.exit()
     if s == 's':
@@ -283,6 +284,14 @@ while 1:
             "event": "ACTION",
             "action": "INIT"
         })
+    elif s == 'initall':
+        action = ['S1630S','SL1007S','SR1052S','SF80S']
+        for a in action:
+            robot.send({
+                "event": "ACTION",
+                "action": "DIRECT",
+                "content": a
+            })
     else:
         acts = s.split(' ')
         if len(acts) == 2 and acts[0] == 'd':
