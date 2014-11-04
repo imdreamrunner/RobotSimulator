@@ -271,6 +271,10 @@ while 1:
         robot.send({
             "event": "START"
         })
+    elif s == "init":
+        robot.send({
+            "event": "INIT"
+        })
     else:
         acts = s.split(' ')
         if len(acts) == 2 and acts[0] == 'd':
