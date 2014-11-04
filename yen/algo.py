@@ -44,6 +44,8 @@ def robot_event_handler(res):
         send_task(Task(GO_STRAIGHT, 0))
     elif event == "GET_MAP":
         send_known_world(arena)
+    elif event == "MSG":
+        print res['content']
     elif event == "TASK_FINISH":
         print "TASK FINISH"
         handle_task_finish(res)
@@ -132,7 +134,7 @@ def find_next_move():
                 challenge -= 1
                 # return [Task(TURN_RIGHT, 1), Task(KELLY, 1), Task(TURN_RIGHT, 1)]
                 return [Task(TURN_LEFT, 1)]
-            elif robot.d == 4:
+            elif robot.d == 0:
                 challenge -= 1
                 return [Task(TURN_RIGHT, 1)]
             init_challenge()
@@ -265,11 +267,19 @@ while 1:
     if s == 's':
         started = True
     elif s == "left":
-        robot.turn_left()
+        robot.send({
+            "event": "ACTION",
+            "action": "ROTATE",
+            "quantity": -1
+        })
+
     elif s == "right":
-        robot.turn_right()
-    elif s == "go":
-        robot.go_straight(1)
+        robot.send({
+            "event": "ACTION",
+            "action": "ROTATE",
+            "quantity": 1
+        })
+
     elif s == "explore":
         robot.send({
             "event": "EXPLORE"
@@ -277,6 +287,11 @@ while 1:
     elif s == "start":
         robot.send({
             "event": "START"
+        })
+    elif s == "kelly":
+        robot.send({
+            "event": "ACTION",
+            "action": "KELLY"
         })
     elif s == "init":
         robot.send({
@@ -292,6 +307,10 @@ while 1:
                 "content": acts[1]
             })
         if len(acts) == 2 and acts[0] == 'go':
-            robot.go_straight(int(acts[1]))
+            robot.send({
+                "event": "ACTION",
+                "action": "GO",
+                "quantity": int(acts[1])
+            })
         else:
             print "input q to exit."
