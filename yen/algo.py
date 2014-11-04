@@ -292,6 +292,11 @@ while 1:
                 "action": "DIRECT",
                 "content": a
             })
+    elif s == "kelly":
+        robot.send({
+            "event": "ACTION",
+            "action": "KELLY"
+        })
     else:
         acts = s.split(' ')
         if len(acts) == 2 and acts[0] == 'd':
