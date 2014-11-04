@@ -45,7 +45,7 @@ def robot_event_handler(res):
     elif event == "TASK_FINISH":
         print "TASK FINISH"
         handle_task_finish(res)
-        arena.print_known_world()
+        # arena.print_known_world()
 
 
 def init_challenge():
@@ -157,8 +157,8 @@ def find_next_move():
     #Use algorithm to find the appropriate action
     print "find action using algorithm"
     if challenge == CHALLENGE_RUN_REACH_GOAL:
-        #algo = shortest_path_bfs_algo
-        algo = shortest_path_heuristic_algo
+        algo = shortest_path_bfs_algo
+        # algo = shortest_path_heuristic_algo
     elif challenge == CHALLENGE_EXPLORE_REACH_GOAL:
         algo = exploration_heuristic_algo
     else:

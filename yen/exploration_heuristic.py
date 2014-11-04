@@ -4,7 +4,7 @@ from algorithm import Algorithm
 
 
 class ExplorationHeuristic(Algorithm):
-    MAXC = 100
+    MAXC = 500
     W = [0, 1, 2, 1]
 
     def __init__(self):
@@ -14,7 +14,7 @@ class ExplorationHeuristic(Algorithm):
     def print_heuristic_matrix(self):
         for i in range(HEIGHT):
             for j in range(WIDTH):
-                print "%4d" % (self.h[i][j]),
+                print "%3d" % (self.h[i][j]),
             print
         print
 

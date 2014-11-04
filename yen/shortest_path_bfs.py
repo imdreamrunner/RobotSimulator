@@ -12,7 +12,7 @@ class Node(object):
 
 class ShortestPathBFS(Algorithm):
 
-    MAXC = 1000
+    MAXC = 500
     W = [0, 1, 2, 1]
 
     def __init__(self):
@@ -23,7 +23,7 @@ class ShortestPathBFS(Algorithm):
         for d in range(4):
             for i in range(HEIGHT):
                 for j in range(WIDTH):
-                    print "%4d" % (self.h[i][j][d]),
+                    print "%3d" % (self.h[i][j][d]),
                 print
             print
 
@@ -65,9 +65,9 @@ class ShortestPathBFS(Algorithm):
         if ans == GO_STRAIGHT:
             x, y, d = robot.x, robot.y, robot.d
             unit = 1
-            for i in range(1, 10):
+            for i in range(1, 20):
                 newx, newy, newd = x + DX[d], y + DY[d], d
-                if self.h[newx][newy][d] > self.h[x][y][d]:
+                if (not arena.is_standable(newx, newy)) or (self.h[newx][newy][d] > self.h[x][y][d]):
                     break
                 x, y, d = newx, newy, newd
                 unit = i
