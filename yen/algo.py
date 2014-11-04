@@ -14,6 +14,8 @@ from queue import Queue, Task
 # import bluetooth
 # import threading
 
+started = False
+
 visited = [[[0] * 4 for j in range(WIDTH)] for i in range(HEIGHT)]
 # Initiate the goal and challenge level
 goalX, goalY = 13, 18
@@ -58,6 +60,9 @@ def init_challenge():
 
 def handle_task_finish(res):
     global task_queue
+
+    if not started:
+        return
 
     if task_queue.isEmpty():
         # if task_queue empty, find next tasks need to be performed
@@ -242,8 +247,8 @@ def print_console():
 
 #############################################################
 arena = Arena(HEIGHT, WIDTH)
-# robot = Robot("192.168.14.144", 8080, robot_event_handler)
-robot = Robot("127.0.0.1", 8080, robot_event_handler)
+robot = Robot("192.168.14.144", 8080, robot_event_handler)
+# robot = Robot("127.0.0.1", 8080, robot_event_handler)
 mapDisplay = Robot("127.0.0.1", 10200, robot_event_handler)
 robot.update_position(7, 9, 1)
 robot.start()
@@ -257,6 +262,8 @@ while 1:
         androidThreadInstance.isRunning = False
         robot.close()
         sys.exit()
+    if s == 's':
+        started = True
     elif s == "left":
         robot.turn_left()
     elif s == "right":
@@ -284,5 +291,7 @@ while 1:
                 "action": "DIRECT",
                 "content": acts[1]
             })
+        if len(acts) == 2 and acts[0] == 'go':
+            robot.go_straight(int(acts[1]))
         else:
             print "input q to exit."
