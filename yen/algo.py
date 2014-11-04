@@ -119,7 +119,6 @@ def find_next_move():
             return [Task(KELLY, 1)]
 
         challenge += 1
-        init_challenge()
         if challenge == CHALLENGE_EXPLORE_REACH_START:
             init_challenge()
             goalX, goalY = 1, 1
