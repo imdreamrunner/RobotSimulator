@@ -12,7 +12,7 @@ class Node(object):
 
 class ShortestPathBFS(Algorithm):
 
-    MAXC = 1000
+    MAXC = 500
     W = [0, 1, 2, 1]
 
     def __init__(self):
@@ -23,7 +23,7 @@ class ShortestPathBFS(Algorithm):
         for d in range(4):
             for i in range(HEIGHT):
                 for j in range(WIDTH):
-                    print "%4d" % (self.h[i][j][d]),
+                    print "%3d" % (self.h[i][j][d]),
                 print
             print
 
@@ -56,16 +56,18 @@ class ShortestPathBFS(Algorithm):
             for k in ACTION_LIST:
                 newx, newy, newd = robot.x+DX[(robot.d+k) % 4], robot.y+DY[(robot.d+k) % 4], (robot.d+k) % 4
                 if k != 0 or arena.is_standable(newx, newy):
-                    if k == 0 or ((visited[robot.x][robot.y][newd] < 2) and self.manhattan(newx, newy, goalX, goalY) < min_dis):
+                    if k == 0 or \
+                            ((visited[robot.x][robot.y][newd] < 2)
+                             and self.manhattan(newx, newy, goalX, goalY) < min_dis):
                         min_dis = self.manhattan(newx, newy, goalX, goalY)
                         ans = k
 
         if ans == GO_STRAIGHT:
             x, y, d = robot.x, robot.y, robot.d
             unit = 1
-            for i in range(1, 10):
+            for i in range(1, 20):
                 newx, newy, newd = x + DX[d], y + DY[d], d
-                if self.h[newx][newy][d] > self.h[x][y][d]:
+                if (not arena.is_standable(newx, newy)) or (self.h[newx][newy][d] > self.h[x][y][d]):
                     break
                 x, y, d = newx, newy, newd
                 unit = i

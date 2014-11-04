@@ -4,7 +4,7 @@ from algorithm import Algorithm
 
 
 class ExplorationHeuristic(Algorithm):
-    MAXC = 100
+    MAXC = 500
     W = [0, 1, 2, 1]
 
     def __init__(self):
@@ -14,7 +14,7 @@ class ExplorationHeuristic(Algorithm):
     def print_heuristic_matrix(self):
         for i in range(HEIGHT):
             for j in range(WIDTH):
-                print "%4d" % (self.h[i][j]),
+                print "%3d" % (self.h[i][j]),
             print
         print
 
@@ -30,7 +30,8 @@ class ExplorationHeuristic(Algorithm):
         for k in ACTION_LIST:
             newx, newy, newd = robot.x+DX[(robot.d+k) % 4], robot.y+DY[(robot.d+k) % 4], (robot.d+k) % 4
             if k != 0 or arena.is_standable(newx, newy):
-                if k == 0 or ((visited[robot.x][robot.y][newd] < 2) and (self.h[newx][newy] + self.W[k] < min_dis)):
+                if k == 0 or \
+                        (visited[robot.x][robot.y][newd] < 2 and (self.h[newx][newy] + self.W[k] < min_dis)):
                     min_dis = self.h[newx][newy] + self.W[k]
                     ans = k
 
@@ -41,7 +42,9 @@ class ExplorationHeuristic(Algorithm):
             for k in ACTION_LIST:
                 newx, newy, newd = robot.x+DX[(robot.d+k) % 4], robot.y+DY[(robot.d+k) % 4], (robot.d+k) % 4
                 if k != 0 or arena.is_standable(newx, newy):
-                    if k == 0 or ((visited[robot.x][robot.y][newd] < 2) and self.manhattan(newx, newy, goalX, goalY) < min_dis):
+                    if k == 0 or\
+                            ((visited[robot.x][robot.y][newd] < 2)
+                             and self.manhattan(newx, newy, goalX, goalY) < min_dis):
                         min_dis = self.manhattan(newx, newy, goalX, goalY)
                         ans = k
         return [Task(ans, 1)]

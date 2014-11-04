@@ -45,7 +45,7 @@ def robot_event_handler(res):
     elif event == "TASK_FINISH":
         print "TASK FINISH"
         handle_task_finish(res)
-        arena.print_known_world()
+        # arena.print_known_world()
 
 
 def init_challenge():
@@ -92,6 +92,9 @@ def send_task(task):
         go_straight_count += quantity
     else:
         go_straight_count = 0
+
+    if action != KELLY:
+        move_count += 1
     send_known_world(arena)
 
 
@@ -99,7 +102,7 @@ def need_calibrate_left_right():
     if challenge == CHALLENGE_RUN_REACH_GOAL:
         return False
     # return just_finish_kelly_front or \
-    return go_straight_count >= 4 or move_count >= 6
+    return go_straight_count >= 5 or move_count >= 8
 
 
 def find_next_move():
@@ -155,8 +158,8 @@ def find_next_move():
     #Use algorithm to find the appropriate action
     print "find action using algorithm"
     if challenge == CHALLENGE_RUN_REACH_GOAL:
-        #algo = shortest_path_bfs_algo
-        algo = shortest_path_heuristic_algo
+        algo = shortest_path_bfs_algo
+        # algo = shortest_path_heuristic_algo
     elif challenge == CHALLENGE_EXPLORE_REACH_GOAL:
         algo = exploration_heuristic_algo
     else:
@@ -170,7 +173,6 @@ def find_next_move():
     print "Action: ",
     for action in action_list:
         print "[", action.action, action.quantity, "]"
-    move_count += 1
     visited[robot.x][robot.y][robot.d] += 1
     return action_list
 
