@@ -1,7 +1,7 @@
 from constants import *
 
 MIN_FRONT = 5
-MIN_LEFT = 0
+MIN_LEFT = 1
 
 
 def print_sensors(sensors):
