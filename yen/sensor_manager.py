@@ -6,17 +6,17 @@ def print_sensors(sensors):
 
 
 def update_known_cell_from_sensor(arena, x, y, direction, distance):
-    if distance > 25:
-        distance = 25
+    if distance > 35:
+        distance = 35
 
-    if distance > 20:
+    if distance > 30:
         no_obstacle = True
     else:
         no_obstacle = False
 
     x, y = get_grid(x, y, direction, 1)
 
-    while distance >= 0:
+    while 3 < distance:
         arena.update_known_cell(x, y, 1)
         x, y = get_grid(x, y, direction, 1)
         distance -= 10
