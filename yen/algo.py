@@ -272,4 +272,11 @@ while 1:
             "event": "START"
         })
     else:
-        print "input q to exit."
+        acts = s.split(' ')
+        if len(acts) == 2 and acts[0] == 'd':
+            robot.send({
+                "event": "DIRECT",
+                "content": acts[1]
+            })
+        else:
+            print "input q to exit."
