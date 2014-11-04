@@ -273,13 +273,15 @@ while 1:
         })
     elif s == "init":
         robot.send({
-            "event": "INIT"
+            "event": "ACTION",
+            "action": "INIT"
         })
     else:
         acts = s.split(' ')
         if len(acts) == 2 and acts[0] == 'd':
             robot.send({
-                "event": "DIRECT",
+                "event": "ACTION",
+                "action": "DIRECT",
                 "content": acts[1]
             })
         else:
