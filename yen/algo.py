@@ -122,7 +122,8 @@ def find_next_move():
         elif challenge == CHALLENGE_RUN_REACH_GOAL:
             if robot.d == 3:
                 challenge -= 1
-                return [Task(TURN_RIGHT, 1), Task(KELLY, 1), Task(TURN_RIGHT, 1)]
+                # return [Task(TURN_RIGHT, 1), Task(KELLY, 1), Task(TURN_RIGHT, 1)]
+                return [Task(TURN_LEFT, 1)]
             elif robot.d == 4:
                 challenge -= 1
                 return [Task(TURN_RIGHT, 1)]
