@@ -301,18 +301,18 @@ while 1:
         })
     elif s == 'initall':
         action = [
-        'S1630S',  # one grid
-        'S2600S',
-        'S3600S',
-        'S4600S',
-        'S5600S',
-        'S6600S',
-        'S7600S',
-        'S8600S',
-        'S9600S',
-        'SL1030S',  # turn left 1.030
-        'SR1071S',  # turn right 1.071
-        'SF20S']    # left offset
+        'S1610S',  # one grid
+        'S2590S',
+        'S3590S',
+        'S4590S',
+        'S5590S',
+        'S6590S',
+        'S7590S',
+        'S8590S',
+        'S9590S',
+        'SL1025S',  # turn left 1.030
+        'SR1057S',  # turn right 1.071
+        'SF30S']    # left offset
         for a in action:
             robot.send({
                 "event": "ACTION",
