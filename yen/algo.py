@@ -310,8 +310,17 @@ while 1:
         'S8590S',
         'S9590S',
         'SL1025S',  # turn left 1.030
-        'SR1057S',  # turn right 1.071
-        'SF30S']    # left offset
+        'SR1052S',  # turn right 1.071
+        'Sa30S',  # left offset
+        'Sb60S',  # 2
+        'Sc90S',  # 3
+        'Sd120S',  # 4
+        'Se150S',  # 5
+        'Sf180S',  # 6
+        'Sg210S',  # 7
+        'Sh240S',  # 8
+        'Si270S'   # 9
+        ]    
         for a in action:
             robot.send({
                 "event": "ACTION",
