@@ -43,8 +43,8 @@ def update_known_world(arena, robot, sensors):
     s_right = sensors[4]
 
     update_known_cell_from_sensor(arena, robot.x, robot.y, robot.d, s_front_mid, MIN_FRONT)
-    update_known_cell_from_sensor(arena, robot.x, robot.y, right(robot.d), s_right, MIN_FRONT)
-    update_known_cell_from_sensor(arena, robot.x, robot.y, left(robot.d), s_left, MIN_FRONT)
-    update_known_cell_from_sensor(arena, robot.x-SX[robot.d], robot.y-SY[robot.d], robot.d, s_front_left, MIN_LEFT)
-    update_known_cell_from_sensor(arena, robot.x+SX[robot.d], robot.y+SY[robot.d], robot.d, s_front_right, MIN_LEFT)
+    update_known_cell_from_sensor(arena, robot.x, robot.y, right(robot.d), s_right, MIN_LEFT)
+    update_known_cell_from_sensor(arena, robot.x, robot.y, left(robot.d), s_left, MIN_LEFT)
+    update_known_cell_from_sensor(arena, robot.x-SX[robot.d], robot.y-SY[robot.d], robot.d, s_front_left, MIN_FRONT)
+    update_known_cell_from_sensor(arena, robot.x+SX[robot.d], robot.y+SY[robot.d], robot.d, s_front_right, MIN_FRONT)
 
