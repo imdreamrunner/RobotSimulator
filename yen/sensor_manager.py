@@ -1,6 +1,6 @@
 from constants import *
 
-MIN_FRONT = 4
+MIN_FRONT = 5
 MIN_LEFT = 0
 
 
