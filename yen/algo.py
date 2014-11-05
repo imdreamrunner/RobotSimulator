@@ -108,8 +108,7 @@ def send_task(task):
 def need_calibrate_left_right():
     if challenge == CHALLENGE_RUN_REACH_GOAL:
         return False
-    # return just_finish_kelly_front or \
-    return go_straight_count >= 5 or move_count >= 8
+    return just_finish_kelly_front or go_straight_count >= 5 or move_count >= 8
 
 
 def find_next_move():

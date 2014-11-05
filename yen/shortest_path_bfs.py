@@ -65,7 +65,7 @@ class ShortestPathBFS(Algorithm):
         if ans == GO_STRAIGHT:
             x, y, d = robot.x, robot.y, robot.d
             unit = 1
-            for i in range(1, 20):
+            for i in range(1, 10):
                 newx, newy, newd = x + DX[d], y + DY[d], d
                 if (not arena.is_standable(newx, newy)) or (self.h[newx][newy][d] > self.h[x][y][d]):
                     break
@@ -108,7 +108,7 @@ class ShortestPathBFS(Algorithm):
                     self.h[newx][newy][newd] = self.h[x][y][d] + 1
                     free[newx][newy][newd] = False
             #k = 0?
-            for i in range(1, 5):
+            for i in range(1, 10):
                 newx, newy, newd = x + i*DX[d], y + i*DY[d], d
                 if not arena.is_standable(newx, newy):
                     break
