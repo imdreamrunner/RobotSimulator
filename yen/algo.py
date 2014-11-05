@@ -1,17 +1,20 @@
 import sys
 from conn import Robot
-from shortest_path_heuristic import shortest_path
-from exploration_heuristic import explore_heuristic
-from exploration_lean_wall import explore_lean_wall
+from shortest_path_heuristic import ShortestPathHeuristic
+from exploration_heuristic import ExplorationHeuristic
+from exploration_lean_wall import ExplorationLeanWall
+from shortest_path_bfs import ShortestPathBFS
 from anena import Arena
 from constants import *
 from sensor_manager import update_known_world, print_sensors
 from calibration_manager import can_calibrate_front, can_calibrate_right, can_calibrate_left
 from queue import Queue, Task
-import piBluetooth
-import jsonpickle
-import bluetooth
-import threading
+# import piBluetooth
+# import jsonpickle
+# import bluetooth
+# import threading
+
+started = False
 
 visited = [[[0] * 4 for j in range(WIDTH)] for i in range(HEIGHT)]
 # Initiate the goal and challenge level
@@ -23,70 +26,58 @@ move_count = 0
 just_finish_kelly_front = False
 infinite_loop = False
 
+#Algorithm strategy
+exploration_heuristic_algo = ExplorationHeuristic()
+exploration_leanwall_algo = ExplorationLeanWall()
+shortest_path_heuristic_algo = ShortestPathHeuristic()
+shortest_path_bfs_algo = ShortestPathBFS()
+
+algo = exploration_heuristic_algo
 task_queue = Queue()
 
 
 def robot_event_handler(res):
     event = res['event']
     if event == "EXPLORE":
-        send_task(Task(GO_STRAIGHT, 1))
+        send_task(Task(GO_STRAIGHT, 0))
     elif event == "START":
-        send_task(Task(TURN_LEFT, 1))
+        send_task(Task(GO_STRAIGHT, 0))
     elif event == "GET_MAP":
         send_known_world(arena)
     elif event == "TASK_FINISH":
         print "TASK FINISH"
         handle_task_finish(res)
-        arena.print_known_world()
+        # arena.print_known_world()
 
 
-def reset_visited():
-    global visited, infinite_loop
+def init_challenge():
+    global task_queue, visited, infinite_loop
     visited = [[[False] * 4 for j in range(WIDTH)] for i in range(HEIGHT)]
     infinite_loop = False
-
-
-def need_calibrate_left_right():
-    return just_finish_kelly_front or go_straight_count >= 5 or move_count >= 7
-
-
-def print_console():
-    for x in range(arena.height):
-        for y in range(arena.width):
-            if x == robot.x and y == robot.y:
-                print "@",
-            elif arena.map[x][y] == 0:
-                print "?",
-            elif arena.map[x][y] == 1:
-                print ".",
-            else:
-                print "#",
-        print
-    print
+    if challenge == CHALLENGE_RUN_REACH_GOAL:
+        task_queue = Queue()
 
 
 def handle_task_finish(res):
     global task_queue
+
+    if not started:
+        return
 
     if task_queue.isEmpty():
         # if task_queue empty, find next tasks need to be performed
         print "Robot position: %d %d %d " % (robot.x, robot.y, robot.d)
         sensors = res['sensors']
         print_sensors(sensors)
-
-        # # Update map only in exploration phase
-        # if challenge < CHALLENGE_RUN_REACH_GOAL:
-        #     update_known_world(arena, robot, sensors)
         update_known_world(arena, robot, sensors)
         print_console()
         task_queue.enqueue_list(find_next_move())
-
     if not task_queue.isEmpty():
         send_task(task_queue.dequeue())
 
 
 def send_task(task):
-    global go_straight_count
+    global go_straight_count, move_count
     action = task.action
     quantity = task.quantity
     if action == GO_STRAIGHT:
@@ -97,16 +88,33 @@ def send_task(task):
         robot.turn_right()
     elif action == KELLY:
         robot.kelly()
+        # update calibration move count
+        go_straight_count = 0
+        move_count = 0
+        # update last kelly
 
     if action == GO_STRAIGHT:
         go_straight_count += quantity
     else:
         go_straight_count = 0
+
+    if action != KELLY:
+        move_count += 1
     send_known_world(arena)
 
 
+def need_calibrate_left_right():
+    if challenge == CHALLENGE_RUN_REACH_GOAL:
+        return False
+    # return just_finish_kelly_front or \
+    return go_straight_count >= 5 or move_count >= 8
+
+
 def find_next_move():
-    global goalX, goalY, challenge, just_finish_kelly_front, go_straight_count, move_count, infinite_loop
+    """
+    Return a list of action the robot should perform next
+    """
+    global goalX, goalY, challenge, just_finish_kelly_front, go_straight_count, move_count, infinite_loop, algo
     #Check if reach goal
     if robot.x == goalX and robot.y == goalY:
         #If reach goal
@@ -116,10 +124,18 @@ def find_next_move():
             return [Task(KELLY, 1)]
 
         challenge += 1
-        reset_visited()
         if challenge == CHALLENGE_EXPLORE_REACH_START:
+            init_challenge()
             goalX, goalY = 1, 1
         elif challenge == CHALLENGE_RUN_REACH_GOAL:
+            if robot.d == 3:
+                challenge -= 1
+                # return [Task(TURN_RIGHT, 1), Task(KELLY, 1), Task(TURN_RIGHT, 1)]
+                return [Task(TURN_LEFT, 1)]
+            elif robot.d == 4:
+                challenge -= 1
+                return [Task(TURN_RIGHT, 1)]
+            init_challenge()
             goalX, goalY = 13, 18
             return []
         elif challenge == CHALLENGE_RUN_FINISH:
@@ -137,32 +153,33 @@ def find_next_move():
     #check if can calibrate_right
     if can_calibrate_right(arena, robot) and need_calibrate_left_right():
         print "calibrate right"
-        move_count = 0
         return [Task(TURN_RIGHT, 1), Task(KELLY, 1), Task(TURN_LEFT, 1)]
 
     #check if can calibrate_left
     if can_calibrate_left(arena, robot) and need_calibrate_left_right():
         print "calibrate left"
-        move_count = 0
         return [Task(TURN_LEFT, 1), Task(KELLY, 1), Task(TURN_RIGHT, 1)]
 
     #Use algorithm to find the appropriate action
     print "find action using algorithm"
     if challenge == CHALLENGE_RUN_REACH_GOAL:
-        action = shortest_path(arena, robot, goalX, goalY, visited, challenge)
+        algo = shortest_path_bfs_algo
+        # algo = shortest_path_heuristic_algo
     elif challenge == CHALLENGE_EXPLORE_REACH_GOAL:
-        action = explore_heuristic(arena, robot, goalX, goalY, visited, challenge)
+        algo = exploration_heuristic_algo
     else:
         # check if infinite loop
         infinite_loop = infinite_loop or (visited[robot.x][robot.y][robot.d] > 2)
         if infinite_loop:
-            action = explore_heuristic(arena, robot, goalX, goalY, visited, challenge)
+            algo = exploration_heuristic_algo
         else:
-            action = explore_lean_wall(arena, robot, goalX, goalY, visited, challenge)
-    print "Action: ", action
-    move_count += 1
+            algo = exploration_leanwall_algo
+    action_list = algo.run(arena, robot, goalX, goalY, visited, challenge)
+    print "Action: ",
+    for action in action_list:
+        print "[", action.action, action.quantity, "]"
     visited[robot.x][robot.y][robot.d] += 1
-    return action
+    return action_list
 
 
 def send_known_world(arena):
@@ -171,54 +188,67 @@ def send_known_world(arena):
         mapDisplay.send_known_world(arena, robot)
 
 
+def print_console():
+    for x in range(arena.height):
+        for y in range(arena.width):
+            if x == robot.x and y == robot.y:
+                print "@",
+            elif arena.map[x][y] == 0:
+                print "?",
+            elif arena.map[x][y] == 1:
+                print ".",
+            else:
+                print "#",
+        print
+    print
 
-class androidThread (threading.Thread):
-
-    def __init__(self):
-        threading.Thread.__init__(self)
-        self.isRunning = True
-
-    def run(self):
-        while True:
-            try:
-                android.connect()
-                while(self.isRunning):
-                    receive_string = android.receive()
-                    while(receive_string == '' and self.isRunning):
-                        print 'is Running'
-                        time.sleep(1)
-                        receive_string = android.receive()
-
-                    if not self.isRunning:
-                        return
-
-                    print 'receiving from android end: ' + receive_string
-
-                    receiveDict = jsonpickle.decode(receive_string)
-
-                    #put with blocking=True
-                    #incomingMessageQueue.put(receiveDict, True)
-                    event = receiveDict['event']
-                    event = event.upper()
-                    if event == 'EXPLORE' or event == 'START':
-                        robot.send({
-                            "event": event
-                        })
-            except bluetooth.BluetoothError:
-                print 'connecting to android failed, retrying'
-            except ValueError as msg:
-                print msg
-            except Exception as msg:
-                print msg
-
-android = piBluetooth.PiBluetooth()
-androidThreadInstance = androidThread()
-androidThreadInstance.start()
+# class androidThread (threading.Thread):
+#
+#     def __init__(self):
+#         threading.Thread.__init__(self)
+#         self.isRunning = True
+#
+#     def run(self):
+#         while True:
+#             try:
+#                 android.connect()
+#                 while(self.isRunning):
+#                     receive_string = android.receive()
+#                     while(receive_string == '' and self.isRunning):
+#                         print 'is Running'
+#                         time.sleep(1)
+#                         receive_string = android.receive()
+#
+#                     if not self.isRunning:
+#                         return
+#
+#                     print 'receiving from android end: ' + receive_string
+#
+#                     receiveDict = jsonpickle.decode(receive_string)
+#
+#                     #put with blocking=True
+#                     #incomingMessageQueue.put(receiveDict, True)
+#                     event = receiveDict['event']
+#                     event = event.upper()
+#                     if event == 'EXPLORE' or event == 'START':
+#                         robot.send({
+#                             "event": event
+#                         })
+#             except bluetooth.BluetoothError:
+#                 print 'connecting to android failed, retrying'
+#             except ValueError as msg:
+#                 print msg
+#             except Exception as msg:
+#                 print msg
+#
+# android = piBluetooth.PiBluetooth()
+# androidThreadInstance = androidThread()
+# androidThreadInstance.start()
 
 #############################################################
 arena = Arena(HEIGHT, WIDTH)
 robot = Robot("192.168.14.144", 8080, robot_event_handler)
-#robot = Robot("127.0.0.1", 8080, robot_event_handler)
+# robot = Robot("127.0.0.1", 8080, robot_event_handler)
 mapDisplay = Robot("127.0.0.1", 10200, robot_event_handler)
 robot.update_position(7, 9, 1)
 robot.start()
@@ -226,12 +256,15 @@ if DISPLAY_MAP:
     mapDisplay.start()
 
 
+
 while 1:
     s = raw_input()
     if s == 'q':
-        androidThreadInstance.isRunning = False
+        # androidThreadInstance.isRunning = False
         robot.close()
         sys.exit()
+    if s == 's':
+        started = True
     elif s == "left":
         robot.turn_left()
     elif s == "right":
@@ -246,5 +279,45 @@ while 1:
         robot.send({
             "event": "START"
         })
+    elif s == "init":
+        robot.send({
+            "event": "ACTION",
+            "action": "INIT"
+        })
+    elif s == 'initall':
+        action = [
+        'S1630S',
+        'S2600S',
+        'S3600S',
+        'S4600S',
+        'S5600S',
+        'S6600S',
+        'S7600S',
+        'S8600S',
+        'S9600S',
+        'SL1030S',
+        'SR1071S',
+        'SF20S']
+        for a in action:
+            robot.send({
+                "event": "ACTION",
+                "action": "DIRECT",
+                "content": a
+            })
+    elif s == "kelly":
+        robot.send({
+            "event": "ACTION",
+            "action": "KELLY"
+        })
     else:
-        print "input q to exit."
+        acts = s.split(' ')
+        if len(acts) == 2 and acts[0] == 'd':
+            robot.send({
+                "event": "ACTION",
+                "action": "DIRECT",
+                "content": acts[1]
+            })
+        if len(acts) == 2 and acts[0] == 'go':
+            robot.go_straight(int(acts[1]))
+        else:
+            print "input q to exit."

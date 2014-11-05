@@ -7,6 +7,20 @@ class Arena(object):
         self.height = height
         self.width = width
         self.map = [[0] * width for i in range(height)]
+        for i in range(height):
+            for j in range(width):
+                if self.isGoal(i, j):
+                    self.map[i][j] = 1
+
+    def isGoal(self, x, y):
+        goals = [7, 9, 1, 1, 13, 18]
+        for i in range(len(goals)):
+            if i % 2 == 0:
+                gx = goals[i]
+                gy = goals[i+1]
+                if abs(gx - x) <= 1 and abs(gy - y) <= 1:
+                    return True
+        return False
 
     def is_outside(self, x, y):
         return x < 0 or x >= self.height or y < 0 or y >= self.width
@@ -43,6 +57,9 @@ class Arena(object):
         return True
 
     def update_known_cell(self, x, y, val):
+
+        if self.isGoal(x, y):
+            return
         if self.is_outside(x, y):
             return
         self.map[x][y] = val
@@ -58,7 +75,7 @@ class Arena(object):
         """
         Print the known world in hexa format
         """
-        os.system('cls')    # windows
+        # os.system('cls')    # windows
         # os.system('clear')  # linux
 
         expl = 0b11
@@ -68,7 +85,7 @@ class Arena(object):
             for h in range(self.height):
                 # print self.map[h][self.width - w - 1],
                 expl <<= 1
-                if self.map[h][w] > 0:
+                if self.map[h][w] > 0 or True:
                     expl |= 0b1
                     obst <<= 1
                     if self.map[h][w] == 2:

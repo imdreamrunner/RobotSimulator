@@ -8,7 +8,7 @@ from path_finder import find_path
 from util import *
 
 
-LOCAL = False
+LOCAL = True
 DISPLAY_MAP = False
 PI_IP = "192.168.14.144"
 PI_PORT = 8080
@@ -38,9 +38,9 @@ path_list = []
 
 
 def set_world(x, y, value):
-    knownWorld[x][y] = value
-    return
     if 0 <= x < WIDTH and 0 <= y < HEIGHT:
+        knownWorld[x][y] = value
+        return
         if knownWorld[x][y] == 2 and value == 3:
             return
         knownWorld[x][y] = value
@@ -202,6 +202,8 @@ def robot_event_handler(res):
             turn_left()
         elif action == "right":
             turn_right()
+        else:
+            go_straight(action)
     elif event == "GET_MAP":
         send_know_world()
     elif event == "TASK_FINISH":
@@ -249,7 +251,7 @@ def robot_event_handler(res):
             if len(path_list) == 0:
                 from shortest_path import find_path_list
                 path_list = find_path_list(knownWorld, robotX, robotY, robotD, WIDTH - 2, HEIGHT - 2)
-            if path_list[0] != "straight":
+            if path_list[0] != "straight" and not isinstance(path_list[0], int):
                 action = path_list.pop(0)
             else:
                 goalPoint = 3
