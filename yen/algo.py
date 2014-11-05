@@ -258,10 +258,11 @@ if DISPLAY_MAP:
     mapDisplay.start()
 
 
+
 while 1:
     s = raw_input()
     if s == 'q':
-        androidThreadInstance.isRunning = False
+        # androidThreadInstance.isRunning = False
         robot.close()
         sys.exit()
     if s == 's':
@@ -297,6 +298,31 @@ while 1:
         robot.send({
             "event": "ACTION",
             "action": "INIT"
+        })
+    elif s == 'initall':
+        action = [
+        'S1630S',
+        'S2600S',
+        'S3600S',
+        'S4600S',
+        'S5600S',
+        'S6600S',
+        'S7600S',
+        'S8600S',
+        'S9600S',
+        'SL1030S',
+        'SR1071S',
+        'SF20S']
+        for a in action:
+            robot.send({
+                "event": "ACTION",
+                "action": "DIRECT",
+                "content": a
+            })
+    elif s == "kelly":
+        robot.send({
+            "event": "ACTION",
+            "action": "KELLY"
         })
     else:
         acts = s.split(' ')
