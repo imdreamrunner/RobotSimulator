@@ -285,7 +285,19 @@ while 1:
             "action": "INIT"
         })
     elif s == 'initall':
-        action = ['S1630S','SL1007S','SR1052S','SF80S']
+        action = [
+        'S1630S',
+        'S2600S',
+        'S3600S',
+        'S4600S',
+        'S5600S',
+        'S6600S',
+        'S7600S',
+        'S8600S',
+        'S9600S',
+        'SL1030S',
+        'SR1071S',
+        'SF20S']
         for a in action:
             robot.send({
                 "event": "ACTION",
