@@ -300,26 +300,26 @@ while 1:
         })
     elif s == 'initall':
         action = [
-        'S1610S',  # one grid
-        'S2590S',
-        'S3590S',
-        'S4590S',
-        'S5590S',
+        'S1615S',  # one grid
+        'S2580S',
+        'S3580S',
+        'S4580S',
+        'S5580S',
         'S6590S',
         'S7590S',
         'S8590S',
         'S9590S',
         'SL1025S',  # turn left 1.030
-        'SR1052S',  # turn right 1.071
-        'Sa30S',  # left offset
-        'Sb60S',  # 2
-        'Sc90S',  # 3
-        'Sd120S',  # 4
+        'SR1056S',  # turn right 1.071
+        'Sa35S',  # left offset
+        'Sc90S',  # 2
+        'Sc100S',  # 3
+        'Sd140S',  # 4
         'Se150S',  # 5
-        'Sf180S',  # 6
-        'Sg210S',  # 7
-        'Sh240S',  # 8
-        'Si270S'   # 9
+        'Sf150S',  # 6
+        'Sg180S',  # 7
+        'Sh185S',  # 8
+        'Si250S'   # 9
         ]    
         for a in action:
             robot.send({
