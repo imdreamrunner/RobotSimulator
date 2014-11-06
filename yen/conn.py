@@ -16,7 +16,6 @@ class Robot(threading.Thread):
 
         self.x = 0
         self.y = 0
-        # self.d = 0
         self.d = 0
 
     def run(self):
