@@ -50,7 +50,7 @@ def robot_event_handler(res):
     elif event == "TASK_FINISH":
         print "TASK FINISH"
         handle_task_finish(res)
-        # arena.print_known_world()
+        arena.print_known_world()
 
 
 def init_challenge():
