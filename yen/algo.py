@@ -9,10 +9,10 @@ from constants import *
 from sensor_manager import update_known_world, print_sensors
 from calibration_manager import can_calibrate_front, can_calibrate_right, can_calibrate_left
 from queue import Queue, Task
-# import piBluetooth
-# import jsonpickle
-# import bluetooth
-# import threading
+import piBluetooth
+import jsonpickle
+import bluetooth
+import threading
 
 started = False
 
@@ -248,8 +248,8 @@ androidThreadInstance.start()
 
 #############################################################
 arena = Arena(HEIGHT, WIDTH)
-# robot = Robot("192.168.14.144", 8080, robot_event_handler)
-robot = Robot("127.0.0.1", 8080, robot_event_handler)
+robot = Robot("192.168.14.144", 8080, robot_event_handler)
+# robot = Robot("127.0.0.1", 8080, robot_event_handler)
 mapDisplay = Robot("127.0.0.1", 10200, robot_event_handler)
 robot.update_position(7, 9, 1)
 robot.start()
