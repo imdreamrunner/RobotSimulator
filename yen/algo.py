@@ -203,48 +203,48 @@ def print_console():
         print
     print
 
-# class androidThread (threading.Thread):
-#
-#     def __init__(self):
-#         threading.Thread.__init__(self)
-#         self.isRunning = True
-#
-#     def run(self):
-#         while True:
-#             try:
-#                 android.connect()
-#                 while(self.isRunning):
-#                     receive_string = android.receive()
-#                     while(receive_string == '' and self.isRunning):
-#                         print 'is Running'
-#                         time.sleep(1)
-#                         receive_string = android.receive()
-#
-#                     if not self.isRunning:
-#                         return
-#
-#                     print 'receiving from android end: ' + receive_string
-#
-#                     receiveDict = jsonpickle.decode(receive_string)
-#
-#                     #put with blocking=True
-#                     #incomingMessageQueue.put(receiveDict, True)
-#                     event = receiveDict['event']
-#                     event = event.upper()
-#                     if event == 'EXPLORE' or event == 'START':
-#                         robot.send({
-#                             "event": event
-#                         })
-#             except bluetooth.BluetoothError:
-#                 print 'connecting to android failed, retrying'
-#             except ValueError as msg:
-#                 print msg
-#             except Exception as msg:
-#                 print msg
-#
-# android = piBluetooth.PiBluetooth()
-# androidThreadInstance = androidThread()
-# androidThreadInstance.start()
+class androidThread (threading.Thread):
+
+    def __init__(self):
+        threading.Thread.__init__(self)
+        self.isRunning = True
+
+    def run(self):
+        while True:
+            try:
+                android.connect()
+                while(self.isRunning):
+                    receive_string = android.receive()
+                    while(receive_string == '' and self.isRunning):
+                        print 'is Running'
+                        time.sleep(1)
+                        receive_string = android.receive()
+
+                    if not self.isRunning:
+                        return
+
+                    print 'receiving from android end: ' + receive_string
+
+                    receiveDict = jsonpickle.decode(receive_string)
+
+                    #put with blocking=True
+                    #incomingMessageQueue.put(receiveDict, True)
+                    event = receiveDict['event']
+                    event = event.upper()
+                    if event == 'EXPLORE' or event == 'START':
+                        robot.send({
+                            "event": event
+                        })
+            except bluetooth.BluetoothError:
+                print 'connecting to android failed, retrying'
+            except ValueError as msg:
+                print msg
+            except Exception as msg:
+                print msg
+
+android = piBluetooth.PiBluetooth()
+androidThreadInstance = androidThread()
+androidThreadInstance.start()
 
 #############################################################
 arena = Arena(HEIGHT, WIDTH)
