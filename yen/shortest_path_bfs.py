@@ -67,7 +67,8 @@ class ShortestPathBFS(Algorithm):
             unit = 1
             for i in range(1, 10):
                 newx, newy, newd = x + DX[d], y + DY[d], d
-                if (not arena.is_standable(newx, newy)) or (self.h[newx][newy][d] > self.h[x][y][d]):
+                if (not arena.is_standable(newx, newy)) or (self.h[newx][newy][d] > self.h[x][y][d]) \
+                        or (self.h[newx][newy][newd] >= self.MAXC):
                     break
                 x, y, d = newx, newy, newd
                 unit = i
