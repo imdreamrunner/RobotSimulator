@@ -49,7 +49,7 @@ def robot_event_handler(res):
     elif event == "TASK_FINISH":
         print "TASK FINISH"
         handle_task_finish(res)
-        # arena.print_known_world()
+        arena.print_known_world()
 
 
 def init_challenge():
@@ -248,8 +248,8 @@ def print_console():
 
 #############################################################
 arena = Arena(HEIGHT, WIDTH)
-robot = Robot("192.168.14.144", 8080, robot_event_handler)
-# robot = Robot("127.0.0.1", 8080, robot_event_handler)
+# robot = Robot("192.168.14.144", 8080, robot_event_handler)
+robot = Robot("127.0.0.1", 8080, robot_event_handler)
 mapDisplay = Robot("127.0.0.1", 10200, robot_event_handler)
 robot.update_position(7, 9, 1)
 robot.start()
