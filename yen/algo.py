@@ -18,7 +18,8 @@ started = False
 
 visited = [[[0] * 4 for j in range(WIDTH)] for i in range(HEIGHT)]
 # Initiate the goal and challenge level
-goalX, goalY = 13, 18
+# goalX, goalY = 13, 18
+goalX, goalY = 1, 1
 challenge = CHALLENGE_EXPLORE_REACH_GOAL
 #Count from last calibrate
 go_straight_count = 0
@@ -125,7 +126,10 @@ def find_next_move():
             return [Task(KELLY, 1)]
 
         challenge += 1
-        if challenge == CHALLENGE_EXPLORE_REACH_START:
+        if challenge == CHALLENGE_EXPLORE_REACH_GOAL_1:
+            init_challenge()
+            goalX, goalY = 13, 18
+        elif challenge == CHALLENGE_EXPLORE_REACH_START:
             init_challenge()
             goalX, goalY = 1, 1
         elif challenge == CHALLENGE_RUN_REACH_GOAL:
@@ -138,6 +142,7 @@ def find_next_move():
                 return [Task(TURN_RIGHT, 1)]
             init_challenge()
             goalX, goalY = 13, 18
+            # goalX, goalY = 1, 1
             return []
         elif challenge == CHALLENGE_RUN_FINISH:
             arena.print_known_world()
